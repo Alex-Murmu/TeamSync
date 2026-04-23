@@ -4,6 +4,8 @@ import { ZodSchema } from "zod";
 
 export const ValidateSchema = (schema:ZodSchema)=>{
     return(req:Request,res:Response,next:NextFunction):void=>{
+        console.log("Validating schema...");
+        console.log("Request body:", req.body);
          const result = schema.safeParse({
             body:req.body,
             query:req.query,

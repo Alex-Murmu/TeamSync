@@ -5,7 +5,7 @@ export const CreateUserSchema = z.object({
     firstName: z
       .string("First Name is Required")
       .trim()
-      .min(5, "First name should be at least 5 characters"),
+      .min(3, "First name should be at least 5 characters"),
     
     lastName: z
       .string("last name is rquired")
@@ -52,7 +52,21 @@ export const UpdateUserSchema = z.object({
           .min(7,"altest length should be 7")
           .optional()
     })
-})
+});
+
+export const LoginUserSchema = z.object({
+    body:z.object({
+        email:z
+          .string()
+          .trim()
+          .email("Invalid email format"),   
+        password:z
+          .string()
+          .trim()
+          .min(6,"Password must be at least 8 characters for security"),
+    })
+});
 
 export type UserUpdateInputs = z.infer<typeof UpdateUserSchema>["body"];
 export type UserRegisterInputs = z.infer<typeof CreateUserSchema>["body"];
+export type UserLoginInputs = z.infer<typeof LoginUserSchema>["body"];

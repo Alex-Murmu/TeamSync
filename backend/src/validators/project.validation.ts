@@ -10,10 +10,6 @@ export const CreateProjectSchema = z.object({
           .string()
           .trim()
           .optional(),
-        admin:z
-          .string()
-          .trim()
-          .regex(/^[a-f\d]{24}$/i, "Invalid user ID format"),
         member:z
           .string()
           .regex(/^[a-f\d]{24}$/i, "Invalid user ID format")
