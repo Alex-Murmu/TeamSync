@@ -1,4 +1,3 @@
-import React from 'react'
 import { ThemeProvider } from './components/theme-provider'
 import  {Container}  from './components/common/container'
 import Navbar from './components/common/Navbar'

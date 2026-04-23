@@ -1,7 +1,6 @@
 import React from 'react'
 import { ModeToggle } from '../mode-toggle'
 import { XCircle } from 'lucide-react';
-import { Button } from '../ui/button';
 import { Singup } from '../landingpage/SignupDialog';
 
 function Navbar() {
