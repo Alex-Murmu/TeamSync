@@ -1,0 +1,1 @@
+export { AuthSidePanelImage } from "./AuthSidePanelImage";

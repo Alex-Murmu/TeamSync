@@ -6,7 +6,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-export function DialogDemo({variant, buttonTitle = "Demo"}: {variant?: "default" | "outline" | "ghost", buttonTitle?: string }) {
+export default function DialogDemo({variant, buttonTitle = "Demo"}: {variant?: "default" | "outline" | "ghost", buttonTitle?: string }) {
   return (
     <Dialog>
       <form >

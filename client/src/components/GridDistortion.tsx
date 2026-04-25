@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, type ReactElement } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 interface GridDistortionProps {
@@ -124,14 +124,15 @@ const GridDistortion: React.FC<GridDistortionProps> = ({
 
     // 5. Load the Image - Ensures image appears correctly
     const loader = new THREE.TextureLoader();
-    loader.load(imageSrc, (tex:any) => {
+    loader.load(imageSrc, (tex: THREE.Texture) => {
       tex.colorSpace = THREE.SRGBColorSpace;
-      imageDims.width = tex.image.width;
-      imageDims.height = tex.image.height;
+      const textureImage = tex.image as { width: number; height: number };
+      imageDims.width = textureImage.width;
+      imageDims.height = textureImage.height;
       material.uniforms.uTexture.value = tex;
       material.needsUpdate = true;
       handleResize();
-    }, undefined, (err:ErrorOptions) => console.error("Error loading texture:", err));
+    }, undefined, (err: unknown) => console.error("Error loading texture:", err));
 
     // 6. Interaction Logic
     const mouseState = { x: 0, y: 0, prevX: 0, prevY: 0, vX: 0, vY: 0 };

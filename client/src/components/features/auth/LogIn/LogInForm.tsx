@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
@@ -10,23 +11,26 @@ import {
 } from "@/components/ui/field";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import image from "../../assets/form.png";
+import image from "@/assets/form.png";
 import { AuthSidePanelImage } from "@/components/features/auth/shared";
-import { useAuthStore, useLogInFormStore } from "@/store";
 
-interface LoginFormProps {
+interface LogInFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSwitchToSignUp?: () => void;
 }
 
-export function LoginForm({
-  open,
-  onOpenChange,
-  onSwitchToSignUp,
-}: LoginFormProps) {
-  const { formData, loading, setField, setLoading, reset } = useLogInFormStore();
-  const setAuthenticatedUser = useAuthStore((state) => state.setAuthenticatedUser);
+interface LogInFormData {
+  email: string;
+  password: string;
+}
+
+export function LogInForm({ open, onOpenChange, onSwitchToSignUp }: LogInFormProps) {
+  const [formData, setFormData] = useState<LogInFormData>({
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,10 +44,9 @@ export function LoginForm({
       });
 
       const data = await response.json();
-      const user = data?.user ?? { email: formData.email };
-      setAuthenticatedUser(user, data?.token ?? null);
+      console.log("Login response:", data);
       onOpenChange(false);
-      reset();
+      setFormData({ email: "", password: "" });
     } catch (error) {
       console.error("Login error:", error);
       alert("Login failed. Please try again.");
@@ -62,34 +65,32 @@ export function LoginForm({
               <FieldGroup>
                 <div className="flex flex-col items-center gap-2 text-center">
                   <h1 className="text-2xl font-bold">Welcome back</h1>
-                  <p className="text-sm text-muted-foreground">
-                    Enter your email and password to continue
-                  </p>
+                  <p className="text-sm text-muted-foreground">Enter your email and password to continue</p>
                 </div>
 
                 <Field>
-                  <FieldLabel htmlFor="login_email">Email</FieldLabel>
+                  <FieldLabel htmlFor="login_email_v2">Email</FieldLabel>
                   <Input
-                    id="login_email"
+                    id="login_email_v2"
                     type="email"
                     placeholder="m@example.com"
                     required
                     disabled={loading}
                     value={formData.email}
-                    onChange={(e) => setField("email", e.target.value)}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="login_password">Password</FieldLabel>
+                  <FieldLabel htmlFor="login_password_v2">Password</FieldLabel>
                   <Input
-                    id="login_password"
+                    id="login_password_v2"
                     type="password"
-                    placeholder="********"
+                    placeholder="••••••••"
                     required
                     disabled={loading}
                     value={formData.password}
-                    onChange={(e) => setField("password", e.target.value)}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   />
                 </Field>
 
@@ -102,24 +103,14 @@ export function LoginForm({
                 <FieldSeparator>Or continue with</FieldSeparator>
 
                 <Field className="grid grid-cols-3 gap-4">
-                  <Button variant="outline" type="button" disabled={loading}>
-                    Apple
-                  </Button>
-                  <Button variant="outline" type="button" disabled={loading}>
-                    Google
-                  </Button>
-                  <Button variant="outline" type="button" disabled={loading}>
-                    Meta
-                  </Button>
+                  <Button variant="outline" type="button" disabled={loading}>Apple</Button>
+                  <Button variant="outline" type="button" disabled={loading}>Google</Button>
+                  <Button variant="outline" type="button" disabled={loading}>Meta</Button>
                 </Field>
 
                 <FieldDescription className="text-center">
                   Don't have an account?{" "}
-                  <button
-                    type="button"
-                    onClick={onSwitchToSignUp}
-                    className="text-primary hover:underline"
-                  >
+                  <button type="button" onClick={onSwitchToSignUp} className="text-primary hover:underline">
                     Sign up
                   </button>
                 </FieldDescription>

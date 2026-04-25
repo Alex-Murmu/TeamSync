@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
@@ -9,55 +10,40 @@ import {
   FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { SelectRole } from "./Role";
-import image from "../../assets/form.png";
-import { LoginForm } from "../loginPage/login-form";
+import image from "@/assets/form.png";
+import { RoleSelector } from "./RoleSelector";
+import { LogInForm } from "@/components/features/auth/LogIn/LogInForm";
 import { AuthSidePanelImage } from "@/components/features/auth/shared";
-import {
-  useAuthDialogStore,
-  useAuthStore,
-  useSignUpFormStore,
-} from "@/store";
 
-interface SignupFormProps {
+interface SignUpFormProps {
   className?: string;
   buttonTitle?: string;
   variant?: "default" | "outline" | "ghost";
-  onSubmit?: (formData: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    role: string;
-  }) => void | Promise<void>;
+  onSubmit?: (formData: SignUpFormData) => void | Promise<void>;
 }
 
-export function SignupForm({
-  className,
-  buttonTitle = "Sign up",
-  variant,
-  onSubmit,
-}: SignupFormProps) {
-  const {
-    isSignUpOpen,
-    isLogInOpen,
-    openSignUp,
-    closeSignUp,
-    openLogIn,
-    closeLogIn,
-    switchToLogIn,
-    switchToSignUp,
-  } = useAuthDialogStore();
+interface SignUpFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: string;
+}
 
-  const { formData, loading, setField, setLoading, reset } = useSignUpFormStore();
-  const setAuthenticatedUser = useAuthStore((state) => state.setAuthenticatedUser);
+export function SignUpForm({ className, buttonTitle = "Sign up", variant, onSubmit }: SignUpFormProps) {
+  const [formData, setFormData] = useState<SignUpFormData>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    role: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -78,18 +64,10 @@ export function SignupForm({
           body: JSON.stringify(formData),
         });
         const data = await response.json();
-
-        const user = data?.user ?? {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          role: formData.role,
-        };
-        setAuthenticatedUser(user, data?.token ?? null);
+        console.log("Signup response:", data);
       }
-
-      closeSignUp();
-      reset();
+      setIsOpen(false);
+      setFormData({ firstName: "", lastName: "", email: "", password: "", role: "" });
     } catch (error) {
       console.error("Signup error:", error);
       alert("Signup failed. Please try again.");
@@ -98,99 +76,92 @@ export function SignupForm({
     }
   };
 
+  const handleRoleChange = (selectedRole: string) => {
+    setFormData({ ...formData, role: selectedRole });
+  };
+
+  const handleOpenLogin = () => {
+    setIsOpen(false);
+    setIsLoginOpen(true);
+  };
+
   return (
     <>
-      <Dialog
-        open={isSignUpOpen}
-        onOpenChange={(open) => (open ? openSignUp() : closeSignUp())}
-      >
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button variant={variant} onClick={openSignUp}>
-            {buttonTitle}
-          </Button>
+          <Button variant={variant}>{buttonTitle}</Button>
         </DialogTrigger>
 
         <DialogContent className="w-full sm:max-w-2xl lg:max-w-4xl">
           <DialogTitle className="hidden" />
-          <div
-            className={cn(
-              "flex flex-col gap-6 bg-none overflow-hidden rounded-xl",
-              className
-            )}
-          >
+          <div className={cn("flex flex-col gap-6 bg-none overflow-hidden rounded-xl", className)}>
             <CardContent className="grid p-0 md:grid-cols-2">
               <form className="p-6 md:p-6 md:min-h[500px]" onSubmit={handleSubmit}>
                 <FieldGroup>
                   <div className="flex flex-col items-center gap-2 text-center">
                     <h1 className="text-2xl font-bold">Create your account</h1>
-                    <p className="text-sm text-muted-foreground">
-                      Enter your email below to create your account
-                    </p>
+                    <p className="text-sm text-muted-foreground">Enter your email below to create your account</p>
                   </div>
 
                   <Field>
                     <div className="grid grid-cols-2 gap-4">
                       <Field>
-                        <FieldLabel htmlFor="first_name">First Name</FieldLabel>
+                        <FieldLabel htmlFor="first_name_v2">First Name</FieldLabel>
                         <Input
-                          id="first_name"
+                          id="first_name_v2"
                           type="text"
                           placeholder="John"
                           required
                           disabled={loading}
                           value={formData.firstName}
-                          onChange={(e) => setField("firstName", e.target.value)}
+                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                         />
                       </Field>
                       <Field>
-                        <FieldLabel htmlFor="last_name">Last Name</FieldLabel>
+                        <FieldLabel htmlFor="last_name_v2">Last Name</FieldLabel>
                         <Input
-                          id="last_name"
+                          id="last_name_v2"
                           type="text"
                           placeholder="Doe"
                           required
                           disabled={loading}
                           value={formData.lastName}
-                          onChange={(e) => setField("lastName", e.target.value)}
+                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                         />
                       </Field>
                     </div>
                   </Field>
 
                   <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
+                    <FieldLabel htmlFor="email_v2">Email</FieldLabel>
                     <Input
-                      id="email"
+                      id="email_v2"
                       type="email"
                       placeholder="m@example.com"
                       required
                       disabled={loading}
                       value={formData.email}
-                      onChange={(e) => setField("email", e.target.value)}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     />
                   </Field>
 
                   <Field>
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <FieldLabel htmlFor="password_v2">Password</FieldLabel>
                     <Input
-                      id="password"
+                      id="password_v2"
                       type="password"
-                      placeholder="********"
+                      placeholder="••••••••"
                       required
                       disabled={loading}
                       value={formData.password}
-                      onChange={(e) => setField("password", e.target.value)}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     />
                     <FieldDescription>At least 8 characters</FieldDescription>
                   </Field>
 
                   <Field>
-                    <FieldLabel htmlFor="role">Select Role</FieldLabel>
-                    <SelectRole
-                      value={formData.role}
-                      onChange={(selectedRole) => setField("role", selectedRole)}
-                      disabled={loading}
-                    />
+                    <FieldLabel htmlFor="role_v2">Select Role</FieldLabel>
+                    <RoleSelector value={formData.role} onChange={handleRoleChange} disabled={loading} />
                   </Field>
 
                   <Field>
@@ -202,24 +173,14 @@ export function SignupForm({
                   <FieldSeparator>Or continue with</FieldSeparator>
 
                   <Field className="grid grid-cols-3 gap-4">
-                    <Button variant="outline" type="button" disabled={loading}>
-                      Apple
-                    </Button>
-                    <Button variant="outline" type="button" disabled={loading}>
-                      Google
-                    </Button>
-                    <Button variant="outline" type="button" disabled={loading}>
-                      Meta
-                    </Button>
+                    <Button variant="outline" type="button" disabled={loading}>Apple</Button>
+                    <Button variant="outline" type="button" disabled={loading}>Google</Button>
+                    <Button variant="outline" type="button" disabled={loading}>Meta</Button>
                   </Field>
 
                   <FieldDescription className="text-center">
                     Already have an account?{" "}
-                    <button
-                      type="button"
-                      onClick={switchToLogIn}
-                      className="text-primary hover:underline"
-                    >
+                    <button type="button" onClick={handleOpenLogin} className="text-primary hover:underline">
                       Sign in
                     </button>
                   </FieldDescription>
@@ -242,9 +203,7 @@ export function SignupForm({
                     whileInView={{ opacity: 1 }}
                     transition={{ duration: 0.7, delay: 0.2 }}
                   >
-                    Block by block. Assemble your vision, dismantle friction,
-                    rebuild workflows into an infinite, interconnected ecosystem of
-                    possibilities. Your workspace, your rules, your velocity.
+                    Block by block. Assemble your vision, dismantle friction, rebuild workflows into an infinite, interconnected ecosystem of possibilities. Your workspace, your rules, your velocity.
                   </motion.p>
                   <motion.div
                     className="pt-2 flex items-center gap-2"
@@ -253,9 +212,7 @@ export function SignupForm({
                     transition={{ duration: 0.6, delay: 0.4 }}
                   >
                     <span className="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                    <span className="text-xs font-semibold uppercase tracking-widest text-cyan-300">
-                      God Mode Unlocked
-                    </span>
+                    <span className="text-xs font-semibold uppercase tracking-widest text-cyan-300">God Mode Unlocked</span>
                   </motion.div>
                 </motion.div>
               </AuthSidePanelImage>
@@ -264,10 +221,13 @@ export function SignupForm({
         </DialogContent>
       </Dialog>
 
-      <LoginForm
-        open={isLogInOpen}
-        onOpenChange={(open) => (open ? openLogIn() : closeLogIn())}
-        onSwitchToSignUp={switchToSignUp}
+      <LogInForm
+        open={isLoginOpen}
+        onOpenChange={setIsLoginOpen}
+        onSwitchToSignUp={() => {
+          setIsLoginOpen(false);
+          setIsOpen(true);
+        }}
       />
     </>
   );

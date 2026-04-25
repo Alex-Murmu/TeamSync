@@ -2,12 +2,11 @@ import React from 'react'
 import { ModeToggle } from '../mode-toggle'
 import { XCircle } from 'lucide-react';
 import { SignupForm } from '../signupPage/signup-form';
-import { Dialog } from 'radix-ui';
 
 function Navbar() {
     const [isOpen, setIsOpen] = React.useState(false);
   return <>
-        <div className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">TeamSync</div>
+        <div className="font-bold text-xl bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">TeamSync</div>
         <div className='hidden md:flex gap-8 items-center'>
             <a className='text-foreground hover:text-primary transition-colors duration-200 font-medium' href="#home">Home</a>
             <a className='text-foreground hover:text-primary transition-colors duration-200 font-medium' href="#features">Features</a>
