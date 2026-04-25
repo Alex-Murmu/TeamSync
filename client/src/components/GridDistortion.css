@@ -1,5 +1,4 @@
-.distortion-container {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+.distortion-container canvas {
+  /* This makes the colors "pop" and look less washed out */
+  filter: brightness(1) contrast(1.1) saturate(1.2);
 }

@@ -1,7 +1,8 @@
 import React from 'react'
 import { ModeToggle } from '../mode-toggle'
 import { XCircle } from 'lucide-react';
-import { Singup } from '../landingpage/SignupDialog';
+import { SignupForm } from '../signupPage/signup-form';
+import { Dialog } from 'radix-ui';
 
 function Navbar() {
     const [isOpen, setIsOpen] = React.useState(false);
@@ -11,7 +12,7 @@ function Navbar() {
             <a className='text-foreground hover:text-primary transition-colors duration-200 font-medium' href="#home">Home</a>
             <a className='text-foreground hover:text-primary transition-colors duration-200 font-medium' href="#features">Features</a>
             <a className='text-foreground hover:text-primary transition-colors duration-200 font-medium' href="#testimonials">Testimonials</a>
-            <Singup buttonText='Signup' />
+            <SignupForm buttonTitle='Sign up'  />
             <ModeToggle />
         </div>
         {/* Mobile menu toggle button */}

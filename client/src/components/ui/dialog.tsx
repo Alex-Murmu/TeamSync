@@ -64,6 +64,7 @@ function DialogContent({
         )}
         {...props}
       >
+
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
