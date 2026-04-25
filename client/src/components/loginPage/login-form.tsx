@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import image from "../../assets/form.png";
 import { AuthSidePanelImage } from "@/components/features/auth/shared";
 import { useAuthStore, useLogInFormStore } from "@/store";
+import { authEndpoint } from "@/api";
 
 interface LoginFormProps {
   open: boolean;
@@ -33,20 +34,15 @@ export function LoginForm({
 
     setLoading(true);
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const data = await authEndpoint.logIn(formData);
 
-      const data = await response.json();
       const user = data?.user ?? { email: formData.email };
       setAuthenticatedUser(user, data?.token ?? null);
       onOpenChange(false);
       reset();
     } catch (error) {
       console.error("Login error:", error);
-      alert("Login failed. Please try again.");
+      alert(error instanceof Error ? error.message : "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }

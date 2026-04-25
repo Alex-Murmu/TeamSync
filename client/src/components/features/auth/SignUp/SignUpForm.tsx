@@ -231,4 +231,7 @@ export function SignUpForm({ className, buttonTitle = "Sign up", variant, onSubm
       />
     </>
   );
-}
+};
+
+
+ 

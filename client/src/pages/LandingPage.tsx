@@ -8,7 +8,7 @@ import {
   Footer,
   Hero,
   Testimonials,
-} from "@/components/features/landingpage";
+} from "@/components/landingpage";
 
 export function LandingPage() {
   return (

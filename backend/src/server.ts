@@ -5,6 +5,8 @@ import express, {Request,Response} from "express";
 import userRoutes from "./routes/user.route.js";
 import projectRoutes from "./routes/project.route.js";
 import taskRoutes from "./routes/task.route.js";
+import conversationRoutes from "./routes/conversation.route.js";
+import callRoutes from "./routes/call.route.js";
 import cors from "cors";
 const port = process.env.PORT;
 const app = express();
@@ -19,6 +21,8 @@ app.get("/",(req:Request,res:Response)=>{
 app.use("/api/v1/user",userRoutes);
 app.use("/api/v1/projects",projectRoutes);
 app.use("/api/v1/tasks",taskRoutes);
+app.use("/api/v1/conversations",conversationRoutes);
+app.use("/api/v1/calls",callRoutes);
 
 connectDB()
     .then(() => {

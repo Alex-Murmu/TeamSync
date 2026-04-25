@@ -25,6 +25,7 @@ import {
   useAuthStore,
   useSignUpFormStore,
 } from "@/store";
+import { authEndpoint } from "@/api";
 
 interface SignupFormProps {
   className?: string;
@@ -72,12 +73,7 @@ export function SignupForm({
       if (onSubmit) {
         await onSubmit(formData);
       } else {
-        const response = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        });
-        const data = await response.json();
+        const data = await authEndpoint.signUp(formData);
 
         const user = data?.user ?? {
           firstName: formData.firstName,
@@ -92,7 +88,7 @@ export function SignupForm({
       reset();
     } catch (error) {
       console.error("Signup error:", error);
-      alert("Signup failed. Please try again.");
+      alert(error instanceof Error ? error.message : "Signup failed. Please try again.");
     } finally {
       setLoading(false);
     }
