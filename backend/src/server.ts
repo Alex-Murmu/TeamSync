@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { CorsOptions } from "cors";
 dotenv.config();
 import { connectDB } from "./config/db.js";
 import express, {Request,Response} from "express";
@@ -11,7 +12,11 @@ import cors from "cors";
 const port = process.env.PORT;
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({"origin":"*",
+             secure: false,
+             credentials: true,
+             optionsSuccessStatus: 200,
+} as CorsOptions));
 
 
 app.get("/",(req:Request,res:Response)=>{
