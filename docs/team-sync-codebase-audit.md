@@ -28,7 +28,7 @@ High-level behavior:
 
 ### Backend structure
 
-The backend lives in `backend/src` and is organized by responsibility:
+The backend lives in `backend/@` and is organized by responsibility:
 
 - `server.ts` starts the app and mounts routes
 - `routes/` wires endpoints to controllers
@@ -40,7 +40,7 @@ The backend lives in `backend/src` and is organized by responsibility:
 
 ### Backend route prefixes
 
-Mounted in `backend/src/server.ts`:
+Mounted in `backend/@/server.ts`:
 
 - `/api/v1/user`
 - `/api/v1/projects`
@@ -131,7 +131,7 @@ Total backend APIs discovered from mounted routes: 18
 
 ### Frontend structure
 
-The frontend lives in `client/src` and currently contains:
+The frontend lives in `client/@` and currently contains:
 
 - A landing page shell
 - Auth dialog/forms for sign up and log in
@@ -161,36 +161,36 @@ What still looks incomplete or missing:
 
 #### App and page shell
 
-- `client/src/App.tsx` renders `LandingPage` only.
-- `client/src/pages/LandingPage.tsx` composes the landing page sections and theme provider.
-- `client/src/components/common/Navbar.tsx` and `client/src/components/landingpage/*` are presentation-only UI pieces.
+- `client/@/App.tsx` renders `LandingPage` only.
+- `client/@/pages/LandingPage.tsx` composes the landing page sections and theme provider.
+- `client/@/components/common/Navbar.tsx` and `client/@/components/landingpage/*` are presentation-only UI pieces.
 
 #### Shared API layer
 
-- `client/src/api/client.ts` creates one Axios instance.
+- `client/@/api/client.ts` creates one Axios instance.
 - It reads `VITE_API_BASE_URL` and defaults to `/api`.
 - It adds `Authorization` from `useAuthStore` automatically.
 - It normalizes server errors into `Error` objects.
 
 #### Auth endpoint wrapper
 
-- `client/src/api/endpoints/auth.endpoint.ts` exposes `signUp` and `logIn`.
+- `client/@/api/endpoints/auth.endpoint.ts` exposes `signUp` and `logIn`.
 - It currently calls:
   - `POST /auth/register`
   - `POST /auth/login`
 
 #### Zustand stores
 
-- `client/src/store/auth/auth.store.ts` stores user, token, and authentication status.
-- `client/src/store/forms/signup-form.store.ts` stores sign-up form values and loading state.
-- `client/src/store/forms/login-form.store.ts` stores login form values and loading state.
-- `client/src/store/ui/auth-dialog.store.ts` tracks whether login/signup dialogs are open.
+- `client/@/store/auth/auth.store.ts` stores user, token, and authentication status.
+- `client/@/store/forms/signup-form.store.ts` stores sign-up form values and loading state.
+- `client/@/store/forms/login-form.store.ts` stores login form values and loading state.
+- `client/@/store/ui/auth-dialog.store.ts` tracks whether login/signup dialogs are open.
 
 #### Auth forms
 
-- `client/src/components/signupPage/signup-form.tsx` is the main sign-up form currently used by the landing page.
-- `client/src/components/loginPage/login-form.tsx` is the main login form used by the sign-up modal.
-- `client/src/components/features/auth/SignUp/SignUpForm.tsx` and `client/src/components/features/auth/LogIn/LogInForm.tsx` are older auth components that still use raw `fetch` calls.
+- `client/@/components/signupPage/signup-form.tsx` is the main sign-up form currently used by the landing page.
+- `client/@/components/loginPage/login-form.tsx` is the main login form used by the sign-up modal.
+- `client/@/components/features/auth/SignUp/SignUpForm.tsx` and `client/@/components/features/auth/LogIn/LogInForm.tsx` are older auth components that still use raw `fetch` calls.
 
 ### Frontend-to-backend mapping
 
@@ -198,16 +198,16 @@ What still looks incomplete or missing:
 
 | Frontend file | What it calls | Backend match status |
 |---|---|---|
-| `client/src/components/signupPage/signup-form.tsx` | `authEndpoint.signUp(formData)` | Calls `/api/auth/register`, but backend exposes `/api/v1/user/register` |
-| `client/src/components/loginPage/login-form.tsx` | `authEndpoint.logIn(formData)` | Calls `/api/auth/login`, but backend exposes `/api/v1/user/login` |
-| `client/src/api/client.ts` | Shared Axios client | Base URL is `/api`, so the wrapper still needs the correct route prefix |
+| `client/@/components/signupPage/signup-form.tsx` | `authEndpoint.signUp(formData)` | Calls `/api/auth/register`, but backend exposes `/api/v1/user/register` |
+| `client/@/components/loginPage/login-form.tsx` | `authEndpoint.logIn(formData)` | Calls `/api/auth/login`, but backend exposes `/api/v1/user/login` |
+| `client/@/api/client.ts` | Shared Axios client | Base URL is `/api`, so the wrapper still needs the correct route prefix |
 
 #### Legacy mapping still present in the codebase
 
 | Frontend file | What it calls | Backend match status |
 |---|---|---|
-| `client/src/components/features/auth/SignUp/SignUpForm.tsx` | `fetch("/api/auth/register")` | Does not match backend route prefix |
-| `client/src/components/features/auth/LogIn/LogInForm.tsx` | `fetch("/api/auth/login")` | Does not match backend route prefix |
+| `client/@/components/features/auth/SignUp/SignUpForm.tsx` | `fetch("/api/auth/register")` | Does not match backend route prefix |
+| `client/@/components/features/auth/LogIn/LogInForm.tsx` | `fetch("/api/auth/login")` | Does not match backend route prefix |
 
 ### Frontend codebase meaning
 
@@ -225,7 +225,7 @@ The frontend currently acts as a marketing/entry experience for TeamSync. It sho
 
 ### Frontend gaps
 
-- Add project and task API endpoint wrappers under `client/src/api/endpoints`.
+- Add project and task API endpoint wrappers under `client/@/api/endpoints`.
 - Add pages or panels for project list, project detail, task list, and task detail.
 - Connect the frontend auth wrapper to the backend route prefix actually used by the server.
 - Decide whether the legacy `fetch` auth components should be removed or replaced.

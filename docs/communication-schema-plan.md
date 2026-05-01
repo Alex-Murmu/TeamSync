@@ -273,7 +273,7 @@ The frontend should eventually add:
 - call buttons for voice/video
 - presence and typing indicators
 
-Keep API wrappers in `client/src/api/endpoints` and keep UI state in the existing Zustand pattern.
+Keep API wrappers in `client/@/api/endpoints` and keep UI state in the existing Zustand pattern.
 
 ## 10. Open Questions Before Coding
 

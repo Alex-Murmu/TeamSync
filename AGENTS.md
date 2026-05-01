@@ -18,7 +18,7 @@ These instructions apply to the entire TeamSync workspace.
 
 ## Run, Build, Lint
 - Backend scripts (`backend/package.json`):
-- `pnpm dev` -> `tsx watch ./src/server.ts`
+- `pnpm dev` -> `tsx watch ./@/server.ts`
 - `pnpm build` -> `tsc`
 - `pnpm start` -> `node ./dist/server.js`
 - Client scripts (`client/package.json`):
@@ -29,15 +29,15 @@ These instructions apply to the entire TeamSync workspace.
 - There are no test scripts configured yet in either app.
 
 ## Architecture Map
-- Backend (`backend/src`): Express + TypeScript + Mongoose.
-- Route prefixes are mounted in `backend/src/server.ts`:
+- Backend (`backend/@`): Express + TypeScript + Mongoose.
+- Route prefixes are mounted in `backend/@/server.ts`:
 - `/api/v1/user`
 - `/api/v1/projects`
 - `/api/v1/tasks`
 - Backend flow is route -> validator middleware -> auth/role middleware -> controller -> model.
-- Frontend (`client/src`): React + TypeScript + Zustand + Axios.
-- API client is centralized in `client/src/api/client.ts`.
-- Frontend path alias `@/*` maps to `client/src/*`.
+- Frontend (`client/@`): React + TypeScript + Zustand + Axios.
+- API client is centralized in `client/@/api/client.ts`.
+- Frontend path alias `@/*` maps to `client/@/*`.
 
 ## Project Conventions
 - Backend uses strict TypeScript with NodeNext module settings (`backend/tsconfig.json`).
@@ -45,8 +45,8 @@ These instructions apply to the entire TeamSync workspace.
 - `noUnusedLocals`
 - `noUnusedParameters`
 - Prefer Zod schema validation for request and form boundaries.
-- Keep API integrations in `client/src/api/endpoints` and avoid direct Axios usage inside UI components.
-- Keep frontend state in domain stores under `client/src/store` (`auth`, `forms`, `ui`).
+- Keep API integrations in `client/@/api/endpoints` and avoid direct Axios usage inside UI components.
+- Keep frontend state in domain stores under `client/@/store` (`auth`, `forms`, `ui`).
 
 ## High-Value References (Link, Do Not Duplicate)
 - API and auth flow wireframe: [client/docs/API_WIREFRAME.md](client/docs/API_WIREFRAME.md)

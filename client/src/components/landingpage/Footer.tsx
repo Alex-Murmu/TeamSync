@@ -5,13 +5,13 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-card dark:bg-background border-t border-border">
+    <footer className="backdrop-blur-3xl rounded-lg ">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand Section */}
           <div className="md:col-span-1">
-            <h3 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-4">
+            <h3 className="font-bold text-xl text-foreground mb-4">
               TeamSync
             </h3>
             <p className="text-muted-foreground text-sm leading-relaxed">

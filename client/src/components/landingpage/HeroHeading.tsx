@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import type { MotionValue, Variants } from "framer-motion";
 
 // 1. Define the Types for TypeScript Safety
@@ -28,7 +28,7 @@ export function HeroHeading() {
     },
   };
 
-  // 4. Letter Animation (Spring Load + Hover Fly)
+  // 4. Letter Animation (Spring Load + Hover Fly + Floating)
   const letterVariants: Variants = {
     hidden: {
       opacity: 0,
@@ -53,6 +53,14 @@ export function HeroHeading() {
         ease: "easeOut",
       },
     }),
+    floating: {
+      y: [0, -5, 0],
+      transition: {
+        duration: 4,
+        repeat: Infinity,
+        ease: "easeInOut",
+      },
+    },
   };
 
   return (
@@ -82,7 +90,6 @@ export function HeroHeading() {
             index={index + text.length}
             progress={scrollYProgress}
             variants={letterVariants}
-            className="bg-linear-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400"
           />
         ))}
       </span>
@@ -93,22 +100,35 @@ export function HeroHeading() {
 
 function Letter({ char, index, progress, variants, className = "" }: LetterProps) {
   
-  // Cleaned up the hooks: No double commas, and all ranges are complete.
-  const scrollY = useTransform(progress, [0, 1], [0, (index % 3 + 1) * -150]);
-  const scrollX = useTransform(progress, [0, 1], [0, (index - 15) * 10]);
-  const scrollOpacity = useTransform(progress, [0, 0.6], [1, 0.35]);
-  const scrollRotate = useTransform(progress, [0, 1], [0, (index % 2 === 0 ? 1 : -1) * 30]);
+  // Enhanced scroll transformations with spring smoothing
+  const rawScrollY = useTransform(progress, [0, 1], [0, (index % 3 + 1) * -150]);
+  const rawScrollX = useTransform(progress, [0, 1], [0, (index - 15) * 10]);
+  const rawScrollOpacity = useTransform(progress, [0, 0.5], [1, 0]);
+  const rawScrollRotate = useTransform(progress, [0, 1], [0, (index % 2 === 0 ? 1 : -1) * 30]);
+  const rawScrollScale = useTransform(progress, [0, 0.8], [1, 0.9]);
+  const rawScrollBlur = useTransform(progress, [0, 0.6], [0, 3]);
+
+  // Apply spring smoothing
+  const scrollY = useSpring(rawScrollY, { stiffness: 100, damping: 30 });
+  const scrollX = useSpring(rawScrollX, { stiffness: 100, damping: 30 });
+  const scrollOpacity = useSpring(rawScrollOpacity, { stiffness: 100, damping: 30 });
+  const scrollRotate = useSpring(rawScrollRotate, { stiffness: 100, damping: 30 });
+  const scrollScale = useSpring(rawScrollScale, { stiffness: 100, damping: 30 });
+  const scrollBlur = useSpring(rawScrollBlur, { stiffness: 100, damping: 30 });
 
   return (
     <motion.span
       custom={index}
       variants={variants}
+      animate="floating"
       whileHover="hoverFly"
       style={{ 
         y: scrollY, 
         x: scrollX, 
         opacity: scrollOpacity, 
-        rotate: scrollRotate, 
+        rotate: scrollRotate,
+        scale: scrollScale,
+        filter: `blur(${scrollBlur}px)`,
         display: "inline-block" 
       }}
       className={className}

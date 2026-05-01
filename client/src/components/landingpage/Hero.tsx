@@ -1,4 +1,3 @@
-import { SignupForm } from '../signupPage/signup-form'
 import { HeroHeading } from './HeroHeading'
 function Hero() {
     return (
@@ -12,7 +11,7 @@ function Hero() {
 
             <div className="mt-10 flex items-center gap-x-6">
 
-                <SignupForm />
+                {/* <AuthDialog /> */}
 
                 <a href="#features" className="text-sm font-semibold leading-6 text-foreground">
                     Learn more <span aria-hidden="true">→</span>

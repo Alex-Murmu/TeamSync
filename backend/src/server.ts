@@ -9,14 +9,20 @@ import taskRoutes from "./routes/task.route.js";
 import conversationRoutes from "./routes/conversation.route.js";
 import callRoutes from "./routes/call.route.js";
 import cors from "cors";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { initSocket } from "./socket/index.js";
 const port = process.env.PORT;
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: { origin: "*", credentials: true },
+  transports: ["websocket", "polling"],
+});
+initSocket(io);
+
 app.use(express.json());
-app.use(cors({"origin":"*",
-             secure: false,
-             credentials: true,
-             optionsSuccessStatus: 200,
-} as CorsOptions));
+app.use(cors());
 
 
 app.get("/",(req:Request,res:Response)=>{
@@ -31,8 +37,9 @@ app.use("/api/v1/calls",callRoutes);
 
 connectDB()
     .then(() => {
-        app.listen(port, () => {
-            console.log(` Server running on http://localhost:${port}`);
+        const serverPort = port || 3000;
+        httpServer.listen(serverPort, () => {
+            console.log(` Server running on http://localhost:${serverPort}`);
         });
     })
     .catch((error) => {

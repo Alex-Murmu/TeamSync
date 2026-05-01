@@ -27,7 +27,7 @@ TeamSync is a collaborative team management and communication platform designed 
 
 ### Clone Repository
 ```bash
-git clone https://github.com/yourusername/TeamSync.git
+git clone https://github.com/ALex-Murmu/TeamSync.git
 cd TeamSync
 ```
 

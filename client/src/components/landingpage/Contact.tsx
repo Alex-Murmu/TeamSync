@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -20,50 +20,6 @@ interface FormErrors {
 }
 
 type CelebrationStage = 'idle' | 'shake' | 'shrink' | 'burst' | 'success'
-
-type Particle = {
-  id: number
-  className: string
-  startX: number
-  startY: number
-  driftX: number
-  driftY: number
-  duration: number
-  delay: number
-}
-
-const floatParticles: Particle[] = [
-  { id: 1, className: 'bg-sky-400/70 dark:bg-sky-300/70', startX: 8, startY: 10, driftX: 12, driftY: -10, duration: 6.4, delay: 0 },
-  { id: 2, className: 'bg-fuchsia-400/70 dark:bg-fuchsia-300/70', startX: 16, startY: 24, driftX: -10, driftY: 12, duration: 5.9, delay: 0.15 },
-  { id: 3, className: 'bg-amber-300/70 dark:bg-amber-200/70', startX: 24, startY: 15, driftX: 10, driftY: 8, duration: 6.8, delay: 0.28 },
-  { id: 4, className: 'bg-emerald-400/70 dark:bg-emerald-300/70', startX: 32, startY: 38, driftX: -12, driftY: -8, duration: 7.2, delay: 0.1 },
-  { id: 5, className: 'bg-rose-400/70 dark:bg-rose-300/70', startX: 42, startY: 18, driftX: 8, driftY: 14, duration: 6.1, delay: 0.36 },
-  { id: 6, className: 'bg-indigo-400/70 dark:bg-indigo-300/70', startX: 50, startY: 30, driftX: -8, driftY: 10, duration: 6.5, delay: 0.2 },
-  { id: 7, className: 'bg-cyan-400/70 dark:bg-cyan-300/70', startX: 58, startY: 12, driftX: 14, driftY: -12, duration: 7, delay: 0.42 },
-  { id: 8, className: 'bg-white/75 dark:bg-white/60', startX: 66, startY: 26, driftX: -6, driftY: 8, duration: 5.8, delay: 0.12 },
-  { id: 9, className: 'bg-sky-300/70 dark:bg-sky-200/70', startX: 74, startY: 16, driftX: 9, driftY: 9, duration: 6.9, delay: 0.3 },
-  { id: 10, className: 'bg-amber-400/70 dark:bg-amber-300/70', startX: 82, startY: 34, driftX: -11, driftY: -9, duration: 6.2, delay: 0.18 },
-  { id: 11, className: 'bg-fuchsia-300/70 dark:bg-fuchsia-200/70', startX: 90, startY: 20, driftX: 7, driftY: 13, duration: 7.1, delay: 0.44 },
-  { id: 12, className: 'bg-emerald-300/70 dark:bg-emerald-200/70', startX: 12, startY: 52, driftX: 10, driftY: -8, duration: 6.7, delay: 0.24 },
-  { id: 13, className: 'bg-rose-300/70 dark:bg-rose-200/70', startX: 20, startY: 64, driftX: -9, driftY: 10, duration: 6.3, delay: 0.4 },
-  { id: 14, className: 'bg-cyan-300/70 dark:bg-cyan-200/70', startX: 30, startY: 56, driftX: 13, driftY: 6, duration: 5.7, delay: 0.08 },
-  { id: 15, className: 'bg-indigo-300/70 dark:bg-indigo-200/70', startX: 40, startY: 72, driftX: -7, driftY: -11, duration: 7.2, delay: 0.32 },
-  { id: 16, className: 'bg-white/70 dark:bg-white/55', startX: 50, startY: 62, driftX: 6, driftY: 7, duration: 6.6, delay: 0.16 },
-  { id: 17, className: 'bg-sky-300/70 dark:bg-sky-200/70', startX: 60, startY: 54, driftX: -10, driftY: 12, duration: 6.8, delay: 0.5 },
-  { id: 18, className: 'bg-fuchsia-300/70 dark:bg-fuchsia-200/70', startX: 70, startY: 68, driftX: 12, driftY: -8, duration: 5.9, delay: 0.22 },
-  { id: 19, className: 'bg-amber-300/70 dark:bg-amber-200/70', startX: 80, startY: 58, driftX: -8, driftY: 9, duration: 7, delay: 0.34 },
-  { id: 20, className: 'bg-emerald-300/70 dark:bg-emerald-200/70', startX: 88, startY: 70, driftX: 7, driftY: -10, duration: 6.1, delay: 0.46 },
-  { id: 21, className: 'bg-slate-900/60 dark:bg-white/45', startX: 6, startY: 44, driftX: 8, driftY: -6, duration: 6.2, delay: 0.12 },
-  { id: 22, className: 'bg-slate-900/60 dark:bg-white/45', startX: 13, startY: 82, driftX: -7, driftY: 10, duration: 7.1, delay: 0.38 },
-  { id: 23, className: 'bg-slate-900/60 dark:bg-white/45', startX: 22, startY: 48, driftX: 9, driftY: 6, duration: 5.8, delay: 0.25 },
-  { id: 24, className: 'bg-slate-900/60 dark:bg-white/45', startX: 34, startY: 86, driftX: -10, driftY: -7, duration: 6.7, delay: 0.48 },
-  { id: 25, className: 'bg-slate-900/60 dark:bg-white/45', startX: 46, startY: 44, driftX: 11, driftY: 8, duration: 6.3, delay: 0.14 },
-  { id: 26, className: 'bg-slate-900/60 dark:bg-white/45', startX: 57, startY: 80, driftX: -8, driftY: 11, duration: 7.2, delay: 0.3 },
-  { id: 27, className: 'bg-slate-900/60 dark:bg-white/45', startX: 68, startY: 50, driftX: 10, driftY: -8, duration: 5.9, delay: 0.2 },
-  { id: 28, className: 'bg-slate-900/60 dark:bg-white/45', startX: 79, startY: 88, driftX: -6, driftY: 7, duration: 6.5, delay: 0.42 },
-  { id: 29, className: 'bg-slate-900/60 dark:bg-white/45', startX: 88, startY: 46, driftX: 9, driftY: 12, duration: 6.8, delay: 0.16 },
-  { id: 30, className: 'bg-slate-900/60 dark:bg-white/45', startX: 94, startY: 78, driftX: -8, driftY: -9, duration: 7, delay: 0.52 },
-]
 
 const confettiPieces = [
   { id: 1, className: 'bg-sky-400 dark:bg-sky-300', x: -180, y: -120, rotate: -40, delay: 0 },
@@ -95,33 +51,6 @@ function Contact() {
   const [errors, setErrors] = useState<FormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [celebrationStage, setCelebrationStage] = useState<CelebrationStage>('idle')
-  const [isAsideHovered, setIsAsideHovered] = useState(false)
-  const [pointer, setPointer] = useState({ x: 50, y: 50 })
-
-  const hoverParticleVariants = useMemo(
-    () => ({
-      rest: {
-        x: 0,
-        y: 0,
-        opacity: 0.55,
-        scale: 1,
-      },
-      hover: (particle: Particle) => ({
-        x: [0, particle.driftX, -particle.driftX * 0.45, particle.driftX * 0.2, 0],
-        y: [0, particle.driftY, -particle.driftY * 0.45, particle.driftY * 0.2, 0],
-        opacity: [0.55, 1, 0.75, 0.95, 0.55],
-        scale: [1, 1.45, 0.9, 1.2, 1],
-        transition: {
-          duration: particle.duration,
-          ease: 'easeInOut' as const,
-          repeat: Infinity,
-          repeatType: 'mirror' as const,
-          delay: particle.delay,
-        },
-      }),
-    }),
-    []
-  )
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {}
@@ -245,40 +174,8 @@ function Contact() {
 
   return (
     <div className='flex justify-center items-center py-16 px-4 gap-8'>
-      <motion.aside
-        className="relative hidden overflow-hidden rounded-3xl bg-linear-to-br from-background via-muted/30 to-background p-8 shadow-[0_20px_80px_rgba(15,23,42,0.12)] lg:flex lg:min-h-160 flex-col justify-between"
-        whileHover="hover"
-        initial="rest"
-        animate="rest"
-        onHoverStart={() => setIsAsideHovered(true)}
-        onHoverEnd={() => {
-          setIsAsideHovered(false)
-          setPointer({ x: 50, y: 50 })
-        }}
-        onPointerMove={(event) => {
-          const bounds = event.currentTarget.getBoundingClientRect()
-          const x = ((event.clientX - bounds.left) / bounds.width) * 100
-          const y = ((event.clientY - bounds.top) / bounds.height) * 100
-
-          setPointer({
-            x: Math.max(0, Math.min(100, x)),
-            y: Math.max(0, Math.min(100, y)),
-          })
-        }}
-      >
-        <motion.div
-          className="absolute inset-0 opacity-70"
-          variants={{
-            rest: { scale: 1, opacity: 0.7 },
-            hover: { scale: 1.04, opacity: 0.95 },
-          }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-        >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.16),transparent_32%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.14),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(20,184,166,0.12),transparent_30%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_bottom_right,rgba(255,255,255,0.08),transparent_35%,rgba(255,255,255,0.05))]" />
-        </motion.div>
-
-        <div className="relative z-10 flex flex-col gap-8">
+      <aside className="hidden lg:flex lg:min-h-160 flex-col justify-between rounded-3xl bg-background border border-border p-8 shadow-sm">
+        <div className="flex flex-col gap-8">
           <div className="max-w-xl space-y-4">
             <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Feedback center
@@ -312,19 +209,17 @@ function Contact() {
                 text: 'We use every report to make the site clearer and more useful.',
               },
             ].map((item) => (
-              <motion.div
+              <div
                 key={item.title}
-                className="rounded-2xl border border-border/70 bg-background/70 p-4 backdrop-blur-sm"
-                whileHover={{ y: -3, scale: 1.01 }}
-                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="rounded-2xl border border-border bg-card p-4"
               >
                 <h4 className="text-sm font-semibold text-foreground">{item.title}</h4>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.text}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
 
-          <div className="rounded-2xl border border-border/70 bg-background/70 p-5 backdrop-blur-sm">
+          <div className="rounded-2xl border border-border bg-card p-5">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
@@ -340,38 +235,7 @@ function Contact() {
             </div>
           </div>
         </div>
-
-        <motion.div
-          className="pointer-events-none absolute inset-0 overflow-hidden"
-        >
-          {floatParticles.map((particle) => (
-            <motion.span
-              key={particle.id}
-              className={`absolute h-1 w-1 rounded-full ${particle.className}`}
-              style={{
-                left: `${particle.startX}%`,
-                top: `${particle.startY}%`,
-                transformOrigin: 'center center',
-              }}
-              custom={particle}
-              variants={hoverParticleVariants}
-              animate={isAsideHovered ? 'hover' : 'rest'}
-              transition={{
-                duration: particle.duration,
-                delay: particle.delay,
-                ease: 'easeInOut',
-              }}
-            />
-          ))}
-
-          <motion.div
-            className="absolute h-28 w-28 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-[1px]"
-            style={{ left: `${pointer.x}%`, top: `${pointer.y}%`, translateX: '-50%', translateY: '-50%' }}
-            animate={isAsideHovered ? { scale: [0.88, 1.06, 0.92], opacity: [0.22, 0.35, 0.22] } : { scale: 0.7, opacity: 0.12 }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </motion.div>
-      </motion.aside>
+      </aside>
       <motion.div
         className="relative min-w-0 origin-center overflow-visible"
         animate={celebrationStage}
