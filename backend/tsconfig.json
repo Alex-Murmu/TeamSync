@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"rootDir": "./@",
+		"rootDir": "./src",
 		"outDir": "./dist",
 
 		"module": "nodenext",
@@ -17,7 +17,10 @@
 		"noUncheckedSideEffectImports": true,
 		"moduleDetection": "force",
 		"skipLibCheck": true,
-    "typeRoots": ["./node_modules/@types", "./@/types"],
-		"sourceMap": true
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+		"sourceMap": true,
+		"paths": {
+			""
+		}
 	}
 }

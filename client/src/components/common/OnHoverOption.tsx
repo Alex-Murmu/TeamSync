@@ -12,13 +12,9 @@ export function OnHoverOption({ButtonText,openDelay,closeDelay}: {ButtonText: st
       <HoverCardTrigger asChild>
         <Button>{ButtonText}</Button>
       </HoverCardTrigger>
-      <HoverCardContent className="flex w-26 flex-col gap-0.5">
-        <Button  size="sm" className="justify-start">
-          <Link to="/login">Login</Link>
-        </Button>
-        <Button  size="sm" className="justify-start">
-           <Link to="/signup">Sign Up</Link>
-        </Button>
+      <HoverCardContent className="flex w-26 flex-col  rounded-none shadow-0">
+          <Link className="hover:bg-gray-300 p-2" to="/login">Login</Link>
+          <Link className="hover:bg-gray-300 p-2" to="/signup">Sign Up</Link>
       </HoverCardContent>
     </HoverCard>
   )
