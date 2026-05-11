@@ -13,6 +13,7 @@ export const ValidateSchema = (schema:ZodSchema)=>{
          });
 
          if(!result.success){
+            console.log("Schema validation failed:", result.error.flatten().fieldErrors.body);
             res.status(400).json({
                 success:false,
                 message:result.error.flatten().fieldErrors,

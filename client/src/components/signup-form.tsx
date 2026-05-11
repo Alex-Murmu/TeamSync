@@ -2,20 +2,21 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import SidePanelImage from "@/assets/side.jpg"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react"
+import { toast } from "sonner"
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { NativeSelect ,NativeSelectOption } from "./ui/native-select";
+import { NativeSelect ,NativeSelectOptGroup,NativeSelectOption } from "./ui/native-select";
+import { BaseUrl } from "./common";
 
 interface SignupFormProps {
-  firtName?: string;
+  firstName?: string;
   lastName?: string;
   email?: string;
   password?: string;
@@ -25,22 +26,57 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-
-  const HandleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-     
-    
-  }
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
   const [SignupData, setSignupData] = useState<SignupFormProps>({
-    firtName: "",
+    firstName: "",
     lastName: "",
     email: "",
     password: "",
     role: "",
   });
+
+  const HandleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+   console.log("Submitting Signup Data:", SignupData);
+    try {
+      const response = await fetch(BaseUrl+"/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(SignupData),
+      });
+
+      const result = await response.json();
+      if(result?.success){
+        toast.success(result.message || "Registration successful");
+        setSignupData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          password: "",
+          role: "",
+        });
+        navigate("/verify");
+      } else {
+        throw new Error(result?.message || "Registration failed");
+      }
+
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.message || "Registration failed");
+      }
+    } catch (error:any) {
+      console.log("Signup error:", error.message);
+      const message = error instanceof Error ? error.message : "Unable to register";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
   
-const HandleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+const HandleInput = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
   const { name, value } = event.target;
   setSignupData((prevData) => ({
     ...prevData,
@@ -70,9 +106,9 @@ const HandleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
                     <Input
                       id="firstName"
                       type="text"
-                      name="firtName"
+                      name="firstName"
                       required
-                      value={SignupData.firtName}
+                      value={SignupData.firstName}
                       onChange={HandleInput}
                     />
                   </Field>
@@ -123,17 +159,21 @@ const HandleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
                 <Field>
                   <FieldLabel  htmlFor="role">Role</FieldLabel>
                   <NativeSelect
+                    id="role"
                    name="role"
                     value={SignupData.role}
                     onChange={HandleInput}
-                  className="rounded-lg">
+                  className="rounded-lg"> 
+                    <NativeSelectOption>Select Role</NativeSelectOption>
                     <NativeSelectOption  value="Member">Member</NativeSelectOption>
-                    <NativeSelectOption  value="admin">Admin</NativeSelectOption>
+                    <NativeSelectOption  value="Admin">Admin</NativeSelectOption>
                   </NativeSelect>
                 </Field>
               </Field>
               <Field>
-                <Button type="submit">Create Account</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Creating Account..." : "Create Account"}
+                </Button>
               </Field>
               
               

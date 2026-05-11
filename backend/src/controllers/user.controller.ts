@@ -7,7 +7,7 @@ import { generateToken } from "../utils/jwt.utils.js";
 
 export const RegisterUser = async(req:Request,res:Response):Promise<void>=>{
   try {
-    const {firstName ,lastName, email, password ,role} = req.body as unknown as UserRegisterInputs;
+    const {firstName ,lastName, email, password ,role} = req.body as UserRegisterInputs;
     const existingUserCheck = await User.findOne({email});
     if(existingUserCheck){
         res.status(406).json({
@@ -64,6 +64,7 @@ export const RegisterUser = async(req:Request,res:Response):Promise<void>=>{
         },
     });
   } catch (error) {
+    console.log("Error in RegisterUser:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     res.status(500).json({
         success:false,

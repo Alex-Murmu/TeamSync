@@ -1,11 +1,11 @@
 import mongoose,{InferSchemaType, Schema} from "mongoose";
 
 const UserSchema = new Schema({
-    firstName:{type:String,trim:true,required:true,unique:true},
+    firstName:{type:String,trim:true,required:true},
     lastName:{type:String,trim:true,required:true},
     email:{type:String,trim:true,required:true},
     password:{type:String,required:true,select:false},
-    role:{type:String,enum:["ADMIN","MEMBER"],default:"MEMBER"},
+    role:{type:String,enum:["Admin","Member"],default:"Member"},
     isEmailVerified:{type:Boolean,default:false},
 },{
     timestamps:true,
