@@ -20,7 +20,7 @@ export const CreateUserSchema = z.object({
     password: z
       .string("Password is required")
       .min(8, "Password must be at least 8 characters for security"),
-    role: z.enum(["Member", "Admin"]).optional().default("Member"),
+    role: z.enum(["ADMIN", "MEMBER"]).optional().default("MEMBER"),
   }),
 });
 

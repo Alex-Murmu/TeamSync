@@ -3,7 +3,7 @@ import mongoose, { InferSchemaType, Schema } from "mongoose";
 const CallSessionSchema = new Schema(
   {
     conversationId: { type: Schema.Types.ObjectId, ref: "Conversation", required: true },
-    projectId: { type: Schema.Types.ObjectId, ref: "Project", required: true },
+    projectId: { type: Schema.Types.ObjectId, ref: "Project", required: false },
     initiatorId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     type: { type: String, enum: ["voice", "video"], required: true },
     status: {

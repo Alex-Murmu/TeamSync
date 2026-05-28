@@ -8,7 +8,10 @@ import projectRoutes from "./routes/project.route.js";
 import taskRoutes from "./routes/task.route.js";
 import conversationRoutes from "./routes/conversation.route.js";
 import callRoutes from "./routes/call.route.js";
+import workspaceRoutes from "./routes/workspace.route.js";
+import commentRoutes from "./routes/comment.route.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { initSocket } from "./socket/index.js";
@@ -22,7 +25,8 @@ const io = new Server(httpServer, {
 initSocket(io);
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
+app.use(cookieParser());
 
 
 app.get("/",(req:Request,res:Response)=>{
@@ -30,9 +34,11 @@ app.get("/",(req:Request,res:Response)=>{
 });
 
 app.use("/api/v1/user",userRoutes);
+app.use("/api/v1/workspaces",workspaceRoutes);
 app.use("/api/v1/projects",projectRoutes);
 app.use("/api/v1/tasks",taskRoutes);
 app.use("/api/v1/conversations",conversationRoutes);
+app.use("/api/v1/comments",commentRoutes);
 app.use("/api/v1/calls",callRoutes);
 
 connectDB()

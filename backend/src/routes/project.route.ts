@@ -15,11 +15,12 @@ import AuthorizationMiddleware from "../middleware/role.authorization.js";
 
 const router = Router();
 
-router.post("/", ValidateSchema(CreateProjectSchema), Authenticate, AuthorizationMiddleware("ADMIN"), CreateProject);
+router.post("/", Authenticate, AuthorizationMiddleware("ADMIN"), ValidateSchema(CreateProjectSchema), CreateProject);
 router.get("/", Authenticate, GetAllProjects);
 router.get("/:id", Authenticate, GetProjectById);
-router.patch("/:id", ValidateSchema(UpdateProjectSchema), Authenticate, UpdateProject);
+router.patch("/:id", Authenticate, ValidateSchema(UpdateProjectSchema), UpdateProject);
 router.patch("/:id/member", Authenticate, AddMemberToProject);
+router.delete("/:id/member/:memberId", Authenticate, RemoveMemberFromProject);
 router.delete("/:id", Authenticate, DeleteProject);
 
 export default router;

@@ -14,10 +14,10 @@ import AuthorizationMiddleware from "../middleware/role.authorization.js";
 
 const router = Router();
 
-router.post("/", ValidateSchema(CreateTaskSchema), Authenticate, AuthorizationMiddleware("ADMIN"), CreateTask);
+router.post("/", Authenticate, AuthorizationMiddleware("ADMIN"), ValidateSchema(CreateTaskSchema), CreateTask);
 router.get("/", Authenticate, GetAllTasks);
 router.get("/:id", Authenticate, GetTaskById);
-router.patch("/:id", ValidateSchema(UpdateTaskSchema), Authenticate, UpdateTask);
+router.patch("/:id", Authenticate, ValidateSchema(UpdateTaskSchema), UpdateTask);
 router.patch("/:id/assign", Authenticate, AuthorizationMiddleware("ADMIN"), AssignTask);
 router.delete("/:id", Authenticate, DeleteTask);
 

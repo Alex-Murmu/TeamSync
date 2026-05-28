@@ -21,9 +21,11 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp"
 import { GridBackground } from "../ui/grid-background"
+import { useAppSelector } from "@/store/hooks"
 
 export function InputOTPForm() {
     const navigate = useNavigate();
+    const user = useAppSelector((state) => state.auth.user);
   return (
     <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
         <GridBackground />
@@ -33,7 +35,7 @@ export function InputOTPForm() {
         <CardTitle>Verify your login</CardTitle>
         <CardDescription>
           Enter the verification code we sent to your email address:{" "}
-          <span className="font-medium">m@example.com</span>.
+          <span className="font-medium">{user?.email ?? "m@example.com"}</span>.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -67,7 +69,13 @@ export function InputOTPForm() {
       </CardContent>
       <CardFooter>
         <Field>
-          <Button type="submit" className="w-full" onClick={()=>navigate("/dashboard")}>
+          <Button
+            type="submit"
+            className="w-full"
+            onClick={() => {
+              navigate("/dashboard");
+            }}
+          >
             Verify
           </Button>
           <div className="text-sm text-muted-foreground">

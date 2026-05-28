@@ -1,34 +1,45 @@
-import { NextFunction, Request,Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { verifyToken } from "../utils/jwt.utils.js";
 
-
-
-export const Authenticate = async(req:Request,res:Response,next:NextFunction):Promise<void>=>{
+export const Authenticate = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+    ): Promise<void> => {
     try {
-        const token = req.headers.authorization;
-        console.log(token);
+        let token: string | undefined;
 
-        if(!token || !token.startsWith("Bearer ")){
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            token = authHeader.split(" ")[1];
+        }
+
+        if (!token && req.cookies?.token) {
+            token = req.cookies.token;
+        }
+
+        if (!token) {
             res.status(401).json({
-                success:false,
-                message:"Unauthorized",
+                success: false,
+                message: "Unauthorized",
             });
             return;
         };
-        const tokenValue = token.split(" ")[1] as string;
-        const decoded = verifyToken(tokenValue);
-        if(!decoded){
+        const decoded = verifyToken(token);
+        if (!decoded) {
             res.status(401).json({
-                success:false,
-                message:"Invalid token",
+                success: false,
+                message: "Invalid token",
             });
             return;
         }
         req.user = decoded;
-        console.log("Authenticated user:", req.user);
-        console.log("Decoded token:", decoded);
         next();
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Authentication error",
+        });
     }
 }

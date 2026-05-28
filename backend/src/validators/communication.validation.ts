@@ -5,14 +5,16 @@ const objectId = /^[a-f\d]{24}$/i;
 export const CreateDirectConversationSchema = z.object({
   body: z.object({
     participantId: z.string().regex(objectId, "Invalid participantId"),
-    projectId: z.string().regex(objectId, "Invalid projectId"),
+    workspaceId: z.string().regex(objectId, "Invalid workspaceId"),
+    projectId: z.string().regex(objectId, "Invalid projectId").optional(),
   }),
 });
 
 export const CreateGroupConversationSchema = z.object({
   body: z.object({
     title: z.string().trim().min(3, "title must be at least 3 chars").max(100),
-    projectId: z.string().regex(objectId, "Invalid projectId"),
+    workspaceId: z.string().regex(objectId, "Invalid workspaceId"),
+    projectId: z.string().regex(objectId, "Invalid projectId").optional(),
     memberIds: z.array(z.string().regex(objectId, "Invalid memberId")).min(2),
   }),
 });
@@ -43,3 +45,8 @@ export const ListMessagesSchema = z.object({
     limit: z.string().optional(),
   }),
 });
+
+export type CreateDirectConversationInputs = z.infer<typeof CreateDirectConversationSchema>["body"];
+export type CreateGroupConversationInputs = z.infer<typeof CreateGroupConversationSchema>["body"];
+export type SendMessageInputs = z.infer<typeof SendMessageSchema>["body"];
+

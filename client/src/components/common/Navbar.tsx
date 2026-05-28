@@ -1,7 +1,6 @@
 import React from 'react'
 import { XCircle } from 'lucide-react';
 import { ModeToggle } from '@/hooks/ModeToggle';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { OnHoverOption } from './OnHoverOption';
 
 function Navbar() {

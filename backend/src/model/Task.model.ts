@@ -5,7 +5,7 @@ export const TaskSchema = new Schema({
     description:{type:String,trim:true},
     projectid:{type:Schema.Types.ObjectId,ref:"Project",required:true},
     assignedTo:{type:Schema.Types.ObjectId,ref:"User"},
-    status:{type:String,enum:["Pending","Complete","Progress"],default:"Pending"},
+    status:{type:String,enum:["Pending","Progress","Review","Complete"],default:"Pending"},
     priority:{type:String,enum:["High","Low","Moderate"],required:true},
     dueDate:{type:Date,required:true}
 },{

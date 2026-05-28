@@ -16,7 +16,7 @@ TeamSync is a collaborative team management and communication platform designed 
 - **Database**: MongoDB
 - **Real-time**: Socket.io
 - **Authentication**: JWT
-- **Hosting**: AWS / Vercel
+
 
 ## Getting Started
 

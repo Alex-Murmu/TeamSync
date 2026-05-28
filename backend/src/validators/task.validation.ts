@@ -25,7 +25,7 @@ export const CreateTaskSchema = z.object({
             .optional(),
 
         status: z
-            .enum(["Pending", "Complete", "Progress"])
+            .enum(["Pending", "Progress", "Review", "Complete"])
             .default("Pending"),
 
         priority: z
@@ -63,7 +63,7 @@ export const UpdateTaskSchema = z.object({
             .optional(),
 
         status: z
-            .enum(["Pending", "Complete", "Progress"])
+            .enum(["Pending", "Progress", "Review", "Complete"])
             .optional()
             .default("Pending"),
 

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CallSession } from "../model/CallSession.model.js";
+import { CallSession ,ICallSession } from "../model/CallSession.model.js";
 import { Conversation } from "../model/Conversation.model.js";
 
 const isConversationMember = (conversationMemberIds: unknown[], userId: string): boolean => {
@@ -37,7 +37,7 @@ export const CreateCallSession = async (req: Request, res: Response): Promise<vo
 
     const callSession = await CallSession.create({
       conversationId,
-      projectId: conversation.projectId,
+      projectId: conversation.projectId || null,
       initiatorId: currentUserId,
       type,
       status: "ringing",
@@ -84,7 +84,7 @@ export const JoinCallSession = async (req: Request, res: Response): Promise<void
 
     const alreadyInCall = callSession.participants.some((participantId) => participantId.toString() === currentUserId);
     if (!alreadyInCall) {
-      callSession.participants.push(currentUserId as never);
+      callSession.participants.push(currentUserId as any);
     }
 
     if (!callSession.startedAt) {
@@ -117,12 +117,12 @@ export const LeaveCallSession = async (req: Request, res: Response): Promise<voi
 
     callSession.participants = callSession.participants.filter(
       (participantId) => participantId.toString() !== currentUserId
-    ) as never;
+    ) as any;
 
     if (callSession.participants.length === 0 && callSession.status !== "ended") {
       callSession.status = "ended";
       callSession.endedAt = new Date();
-      callSession.endedBy = currentUserId as never;
+      callSession.endedBy = currentUserId as any;
 
       if (callSession.startedAt && callSession.endedAt) {
         callSession.durationSeconds = Math.max(
@@ -166,7 +166,7 @@ export const EndCallSession = async (req: Request, res: Response): Promise<void>
     if (callSession.status !== "ended") {
       callSession.status = "ended";
       callSession.endedAt = new Date();
-      callSession.endedBy = currentUserId as never;
+      callSession.endedBy = currentUserId as any;
 
       if (callSession.startedAt && callSession.endedAt) {
         callSession.durationSeconds = Math.max(

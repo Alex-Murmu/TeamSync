@@ -10,9 +10,11 @@ export const CreateProjectSchema = z.object({
           .string()
           .trim()
           .optional(),
-        member:z
+        workspaceId:z
           .string()
-          .regex(/^[a-f\d]{24}$/i, "Invalid user ID format")
+          .regex(/^[a-f\d]{24}$/i, "Invalid workspace ID format"),
+        members:z
+          .array(z.string().regex(/^[a-f\d]{24}$/i, "Invalid user ID format"))
           .optional(),
         dueDate:z
           .string()
@@ -33,14 +35,8 @@ export const UpdateProjectSchema = z.object({
           .string()
           .trim()
           .optional(),
-        admin:z
-          .string()
-          .trim()
-          .regex(/^[a-f\d]{24}$/i, "Invalid user ID format")
-          .optional(),
-        member:z
-          .string()
-          .regex(/^[a-f\d]{24}$/i, "Invalid user ID format")
+        members:z
+          .array(z.string().regex(/^[a-f\d]{24}$/i, "Invalid user ID format"))
           .optional(),
         dueDate:z
           .string()
@@ -53,3 +49,4 @@ export const UpdateProjectSchema = z.object({
 
 export type CreateProjectInputs = z.infer<typeof CreateProjectSchema>["body"];
 export type UpdateProjectInputs = z.infer<typeof UpdateProjectSchema>["body"];
+

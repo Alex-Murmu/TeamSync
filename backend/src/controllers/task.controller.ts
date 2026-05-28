@@ -3,11 +3,12 @@ import { Task, ITask } from "../model/Task.model.js";
 import { Project } from "../model/Project.model.js";
 import { User } from "../model/User.model.js";
 import { CreateTaskInput, UpdateTaskInput } from "../validators/task.validation.js";
+import { Types } from "mongoose";
 
 export const CreateTask = async (req: Request, res: Response): Promise<void> => {
     try {
         const { title, description, projectId, priority, dueDate } = req.body as CreateTaskInput;
-        const adminId = req.user?.userId;
+        const userId = req.user?.userId;
 
         const project = await Project.findById(projectId);
         if (!project) {
@@ -18,10 +19,13 @@ export const CreateTask = async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
-        if (project.admin.toString() !== adminId) {
+        const isCreator = project.createdBy.toString() === userId;
+        const isMember = project.members.some((m: any) => m.toString() === userId);
+
+        if (!isCreator && !isMember) {
             res.status(403).json({
                 success: false,
-                message: "Forbidden: Only project admin can create tasks for this project",
+                message: "Forbidden: You must be a member of this project to create tasks",
             });
             return;
         }
@@ -60,29 +64,21 @@ export const CreateTask = async (req: Request, res: Response): Promise<void> => 
 export const GetAllTasks = async (req: Request, res: Response): Promise<void> => {
     try {
         const userId = req.user?.userId;
-        const userRole = req.user?.role;
 
-        let tasks;
-        if (userRole === "ADMIN") {
-            tasks = await Task.find()
-                .populate("projectid", "title description")
-                .populate("assignedTo", "firstName lastName email");
-        } else {
-            const userProjects = await Project.find({
-                $or: [{ admin: userId }, { member: userId }],
-            });
+        const userProjects = await (Project as any).find({
+            $or: [{ createdBy: userId }, { members: userId }],
+        });
 
-            const projectIds = userProjects.map((p) => p._id);
+        const projectIds = userProjects.map((p: any) => p._id);
 
-            tasks = await Task.find({
-                $or: [
-                    { assignedTo: userId },
-                    { projectid: { $in: projectIds } },
-                ],
-            })
-                .populate("projectid", "title description")
-                .populate("assignedTo", "firstName lastName email");
-        }
+        const tasks = await (Task as any).find({
+            $or: [
+                { assignedTo: userId },
+                { projectid: { $in: projectIds } },
+            ],
+        })
+            .populate("projectid", "title description")
+            .populate("assignedTo", "firstName lastName email");
 
         res.status(200).json({
             success: true,
@@ -103,7 +99,6 @@ export const GetTaskById = async (req: Request, res: Response): Promise<void> =>
     try {
         const { id } = req.params;
         const userId = req.user?.userId;
-        const userRole = req.user?.role;
 
         const task = await Task.findById(id)
             .populate("projectid", "title description")
@@ -117,15 +112,6 @@ export const GetTaskById = async (req: Request, res: Response): Promise<void> =>
             return;
         }
 
-        if (userRole === "ADMIN") {
-            res.status(200).json({
-                success: true,
-                message: "Task retrieved successfully",
-                data: task,
-            });
-            return;
-        }
-
         const project = await Project.findById(task.projectid);
         if (!project) {
             res.status(404).json({
@@ -135,11 +121,11 @@ export const GetTaskById = async (req: Request, res: Response): Promise<void> =>
             return;
         }
 
-        const isProjectAdmin = project.admin.toString() === userId;
-        const isProjectMember = project.member.some((m) => m.toString() === userId);
+        const isProjectCreator = project.createdBy.toString() === userId;
+        const isProjectMember = project.members.some((m: any) => m.toString() === userId);
         const isAssigned = task.assignedTo && task.assignedTo.toString() === userId;
 
-        if (!isProjectAdmin && !isProjectMember && !isAssigned) {
+        if (!isProjectCreator && !isProjectMember && !isAssigned) {
             res.status(403).json({
                 success: false,
                 message: "Forbidden: You do not have access to this task",
@@ -167,7 +153,6 @@ export const UpdateTask = async (req: Request, res: Response): Promise<void> => 
         const { id } = req.params;
         const updateData = req.body as UpdateTaskInput;
         const userId = req.user?.userId;
-        const userRole = req.user?.role;
 
         const task = await Task.findById(id);
         if (!task) {
@@ -187,10 +172,10 @@ export const UpdateTask = async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
-        const isProjectAdmin = project.admin.toString() === userId;
+        const isProjectCreator = project.createdBy.toString() === userId;
         const isAssigned = task.assignedTo && task.assignedTo.toString() === userId;
 
-        if (userRole === "ADMIN" || isProjectAdmin) {
+        if (isProjectCreator) {
             const filteredData = Object.fromEntries(
                 Object.entries(updateData).filter(([_, v]) => v !== undefined)
             ) as UpdateTaskInput;
@@ -243,7 +228,7 @@ export const AssignTask = async (req: Request, res: Response): Promise<void> => 
     try {
         const { id } = req.params;
         const { assignedTo } = req.body as { assignedTo: string };
-        const adminId = req.user?.userId;
+        const userId = req.user?.userId;
 
         const task = await Task.findById(id);
         if (!task) {
@@ -263,10 +248,12 @@ export const AssignTask = async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
-        if (project.admin.toString() !== adminId) {
+        const isProjectCreator = project.createdBy.toString() === userId;
+
+        if (!isProjectCreator) {
             res.status(403).json({
                 success: false,
-                message: "Forbidden: Only project admin can assign tasks",
+                message: "Forbidden: Only project creator can assign tasks",
             });
             return;
         }
@@ -280,12 +267,12 @@ export const AssignTask = async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
-        const isProjectMember = project.member.some(
-            (m) => m.toString() === assignedTo
+        const isProjectMember = project.members.some(
+            (m: any) => m.toString() === assignedTo
         );
-        const isProjectAdmin = project.admin.toString() === assignedTo;
+        const isProjectCreator2 = project.createdBy.toString() === assignedTo;
 
-        if (!isProjectMember && !isProjectAdmin) {
+        if (!isProjectMember && !isProjectCreator2) {
             res.status(400).json({
                 success: false,
                 message: "User must be a member of the project to be assigned a task",
@@ -293,7 +280,7 @@ export const AssignTask = async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
-        task.assignedTo = assignedTo as any;
+        task.assignedTo = new Types.ObjectId(assignedTo) as any;
         task.status = "Pending";
         await task.save();
 
@@ -319,7 +306,7 @@ export const AssignTask = async (req: Request, res: Response): Promise<void> => 
 export const DeleteTask = async (req: Request, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
-        const adminId = req.user?.userId;
+        const userId = req.user?.userId;
 
         const task = await Task.findById(id);
         if (!task) {
@@ -332,17 +319,19 @@ export const DeleteTask = async (req: Request, res: Response): Promise<void> => 
 
         const project = await Project.findById(task.projectid);
         if (!project) {
-            res.status(500).json({
+            res.status(404).json({
                 success: false,
                 message: "Associated project not found",
             });
             return;
         }
 
-        if (project.admin.toString() !== adminId) {
+        const isProjectCreator = project.createdBy.toString() === userId;
+
+        if (!isProjectCreator) {
             res.status(403).json({
                 success: false,
-                message: "Forbidden: Only project admin can delete tasks",
+                message: "Forbidden: Only project creator can delete tasks",
             });
             return;
         }

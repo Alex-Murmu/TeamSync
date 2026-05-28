@@ -1,20 +1,20 @@
 import { useNavigate } from "react-router-dom";
-import { TiArrowBackOutline } from "react-icons/ti";
 import BackForward from "@/assets/left-arrow.png";
+import { cn } from "@/lib/utils"
 
-export const GoBackButton = () => {
+
+export const GoBackButton = ({className}:{className?:string}) => {
     const navigate = useNavigate();
 
     const handleGoBack = () => {
-        navigate(-1); // Navigate back to the previous page
+        navigate(-1);
     };
 
     return (
-        // remeber make the parent first then the add this ine
-        <div className="absolute left-15 top-3">  
-        <button onClick={handleGoBack} className="flex items-center gap-1 text-sm text-foreground hover:text-primary transition-colors duration-200">
+        <div className={cn("",className)}>
+        <button onClick={handleGoBack} className="flex items-center gap-1 text-sm text-foreground  hover:text-primary transition-colors duration-200">
               <img src={BackForward} alt="" className="" />
-     
+
         </button>
         </div>
     );

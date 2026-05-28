@@ -163,3 +163,84 @@
     cursor: pointer;
     }
 }
+
+.login-scene {
+  perspective: 1200px;
+}
+
+.login-bg {
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  background:
+    radial-gradient(800px 480px at 10% 20%, oklch(0.85 0.12 210 / 0.55), transparent 60%),
+    radial-gradient(700px 520px at 85% 15%, oklch(0.88 0.15 95 / 0.55), transparent 60%),
+    radial-gradient(900px 700px at 30% 80%, oklch(0.78 0.18 35 / 0.45), transparent 65%),
+    linear-gradient(140deg, oklch(0.98 0.01 240), oklch(0.92 0.02 95));
+  filter: saturate(1.1) contrast(1.05);
+  animation: login-float 18s ease-in-out infinite;
+  transform: translateZ(0);
+}
+
+.login-bg::before {
+  content: "";
+  position: absolute;
+  inset: -10% 0;
+  background-image:
+    repeating-linear-gradient(90deg, oklch(0.70 0.02 240 / 0.25) 0 1px, transparent 1px 48px),
+    repeating-linear-gradient(180deg, oklch(0.70 0.02 240 / 0.20) 0 1px, transparent 1px 48px);
+  transform: rotateX(62deg) rotateZ(-12deg) translateY(8%) scale(1.1);
+  transform-origin: top center;
+  filter: blur(0.2px);
+  animation: login-grid 14s linear infinite;
+  opacity: 0.6;
+}
+
+.login-bg::after {
+  content: "";
+  position: absolute;
+  inset: 15% 10% 5% 10%;
+  background:
+    radial-gradient(320px 260px at 20% 30%, oklch(0.90 0.12 205 / 0.65), transparent 70%),
+    radial-gradient(260px 220px at 80% 40%, oklch(0.92 0.16 90 / 0.55), transparent 70%),
+    radial-gradient(360px 300px at 50% 85%, oklch(0.80 0.20 30 / 0.55), transparent 70%);
+  filter: blur(2px);
+  animation: login-orbs 12s ease-in-out infinite;
+  opacity: 0.75;
+}
+
+@keyframes login-float {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-2%, 1.5%, 0) scale(1.02); }
+}
+
+@keyframes login-grid {
+  0% { transform: rotateX(62deg) rotateZ(-12deg) translateY(8%) translateX(0); }
+  100% { transform: rotateX(62deg) rotateZ(-12deg) translateY(8%) translateX(-48px); }
+}
+
+@keyframes login-orbs {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(2.5%, -1.5%, 0); }
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+  100% { transform: translateX(0); }
+}
+
+.shake {
+  animation: shake 0.35s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-bg,
+  .login-bg::before,
+  .login-bg::after {
+    animation: none;
+  }
+}

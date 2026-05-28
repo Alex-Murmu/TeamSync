@@ -1,36 +1,47 @@
 import { Request, Response } from "express";
 import { Project, IProject } from "../model/Project.model.js";
+import { Workspace } from "../model/Workspace.model.js";
 import { User } from "../model/User.model.js";
 import { CreateProjectInputs, UpdateProjectInputs } from "../validators/project.validation.js";
+import { Types } from "mongoose";
 
 export const CreateProject = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, description, dueDate } = req.body as CreateProjectInputs;
-        const adminId = req.user?.userId;
-
-        const existingProject = await Project.findOne({ title });
-        if (existingProject) {
-            res.status(400).json({
+        const { title, description, dueDate, workspaceId, members } = req.body as CreateProjectInputs;
+        const userId = req.user?.userId;
+         console.log("Creating project with data:", { title, description, dueDate, workspaceId, members, userId });
+        const workspace = await Workspace.findById(workspaceId);
+        if (!workspace) {
+            res.status(404).json({
                 success: false,
-                message: "Project title already exists",
+                message: "Workspace not found",
+            });
+            return;
+        }
+
+        const userRole = workspace.members.find((m) => m.userId.toString() === userId)?.role;
+        if (!userRole || !["Owner", "Admin", "Member"].includes(userRole)) {
+            res.status(403).json({
+                success: false,
+                message: "Insufficient permissions to create project in this workspace",
             });
             return;
         }
 
         const createData: any = {
             title,
-            admin: adminId,
+            description,
             dueDate,
+            workspaceId: new Types.ObjectId(workspaceId),
+            createdBy: new Types.ObjectId(userId),
+            members: members ? members.map((id) => new Types.ObjectId(id)) : [],
         };
-        if (description) {
-            createData.description = description;
-        }
 
         const newProject = await Project.create(createData);
 
         const populatedProject = await Project.findById(newProject._id)
-            .populate("admin", "firstName lastName email")
-            .populate("member", "firstName lastName email");
+            .populate("createdBy", "firstName lastName email")
+            .populate("members", "firstName lastName email");
 
         res.status(201).json({
             success: true,
@@ -50,20 +61,20 @@ export const CreateProject = async (req: Request, res: Response): Promise<void> 
 export const GetAllProjects = async (req: Request, res: Response): Promise<void> => {
     try {
         const userId = req.user?.userId;
-        const userRole = req.user?.role;
+        const { workspaceId } = req.query;
 
-        let projects;
-        if (userRole === "ADMIN") {
-            projects = await Project.find()
-                .populate("admin", "firstName lastName email")
-                .populate("member", "firstName lastName email");
-        } else {
-            projects = await Project.find({
-                $or: [{ admin: userId }, { member: userId }],
-            })
-                .populate("admin", "firstName lastName email")
-                .populate("member", "firstName lastName email");
+        const query: any = {
+            $or: [{ createdBy: userId }, { members: userId }],
+        };
+
+        if (workspaceId) {
+            query.workspaceId = new Types.ObjectId(workspaceId as string);
         }
+
+        const projects = await Project.find(query)
+            .populate("createdBy", "firstName lastName email")
+            .populate("members", "firstName lastName email")
+            .populate("workspaceId", "name");
 
         res.status(200).json({
             success: true,
@@ -84,11 +95,11 @@ export const GetProjectById = async (req: Request, res: Response): Promise<void>
     try {
         const { id } = req.params;
         const userId = req.user?.userId;
-        const userRole = req.user?.role;
 
         const project = await Project.findById(id)
-            .populate("admin", "firstName lastName email")
-            .populate("member", "firstName lastName email");
+            .populate("createdBy", "firstName lastName email")
+            .populate("members", "firstName lastName email")
+            .populate("workspaceId", "name");
 
         if (!project) {
             res.status(404).json({
@@ -98,12 +109,12 @@ export const GetProjectById = async (req: Request, res: Response): Promise<void>
             return;
         }
 
-        const isAdmin = project.admin._id.toString() === userId;
-        const isMember = project.member.some(
+        const isCreator = project.createdBy._id.toString() === userId;
+        const isMember = project.members.some(
             (m: any) => m._id.toString() === userId
         );
 
-        if (userRole !== "ADMIN" && !isAdmin && !isMember) {
+        if (!isCreator && !isMember) {
             res.status(403).json({
                 success: false,
                 message: "Forbidden: You are not a member of this project",
@@ -141,25 +152,30 @@ export const UpdateProject = async (req: Request, res: Response): Promise<void> 
             return;
         }
 
-        if (project.admin.toString() !== userId) {
+        if (project.createdBy.toString() !== userId) {
             res.status(403).json({
                 success: false,
-                message: "Forbidden: Only project admin can update the project",
+                message: "Forbidden: Only project creator can update the project",
             });
             return;
         }
 
         const filteredData = Object.fromEntries(
             Object.entries(updateData).filter(([_, v]) => v !== undefined)
-        ) as UpdateProjectInputs;
+        ) as any;
+
+        if (filteredData.members) {
+            filteredData.members = filteredData.members.map((id: string) => new Types.ObjectId(id));
+        }
 
         const updatedProject = await Project.findByIdAndUpdate(
             id,
             { $set: filteredData },
             { new: true }
         )
-            .populate("admin", "firstName lastName email")
-            .populate("member", "firstName lastName email");
+            .populate("createdBy", "firstName lastName email")
+            .populate("members", "firstName lastName email")
+            .populate("workspaceId", "name");
 
         res.status(200).json({
             success: true,
@@ -180,7 +196,7 @@ export const AddMemberToProject = async (req: Request, res: Response): Promise<v
     try {
         const { id } = req.params;
         const { memberId } = req.body;
-        const adminId = req.user?.userId;
+        const userId = req.user?.userId;
 
         const project = await Project.findById(id);
         if (!project) {
@@ -191,10 +207,10 @@ export const AddMemberToProject = async (req: Request, res: Response): Promise<v
             return;
         }
 
-        if (project.admin.toString() !== adminId) {
+        if (project.createdBy.toString() !== userId) {
             res.status(403).json({
                 success: false,
-                message: "Forbidden: Only project admin can add members",
+                message: "Forbidden: Only project creator can add members",
             });
             return;
         }
@@ -208,7 +224,7 @@ export const AddMemberToProject = async (req: Request, res: Response): Promise<v
             return;
         }
 
-        if (project.member.includes(memberId)) {
+        if (project.members.includes(new Types.ObjectId(memberId))) {
             res.status(400).json({
                 success: false,
                 message: "User is already a member of this project",
@@ -216,12 +232,13 @@ export const AddMemberToProject = async (req: Request, res: Response): Promise<v
             return;
         }
 
-        project.member.push(memberId);
+        project.members.push(new Types.ObjectId(memberId));
         await project.save();
 
         const populatedProject = await Project.findById(id)
-            .populate("admin", "firstName lastName email")
-            .populate("member", "firstName lastName email");
+            .populate("createdBy", "firstName lastName email")
+            .populate("members", "firstName lastName email")
+            .populate("workspaceId", "name");
 
         res.status(200).json({
             success: true,
@@ -241,7 +258,7 @@ export const AddMemberToProject = async (req: Request, res: Response): Promise<v
 export const RemoveMemberFromProject = async (req: Request, res: Response): Promise<void> => {
     try {
         const { id, memberId } = req.params;
-        const adminId = req.user?.userId;
+        const userId = req.user?.userId;
 
         const project = await Project.findById(id);
         if (!project) {
@@ -252,22 +269,23 @@ export const RemoveMemberFromProject = async (req: Request, res: Response): Prom
             return;
         }
 
-        if (project.admin.toString() !== adminId) {
+        if (project.createdBy.toString() !== userId) {
             res.status(403).json({
                 success: false,
-                message: "Forbidden: Only project admin can remove members",
+                message: "Forbidden: Only project creator can remove members",
             });
             return;
         }
 
-        project.member = project.member.filter(
+        project.members = project.members.filter(
             (m) => m.toString() !== memberId
         );
         await project.save();
 
         const populatedProject = await Project.findById(id)
-            .populate("admin", "firstName lastName email")
-            .populate("member", "firstName lastName email");
+            .populate("createdBy", "firstName lastName email")
+            .populate("members", "firstName lastName email")
+            .populate("workspaceId", "name");
 
         res.status(200).json({
             success: true,
@@ -287,7 +305,7 @@ export const RemoveMemberFromProject = async (req: Request, res: Response): Prom
 export const DeleteProject = async (req: Request, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
-        const adminId = req.user?.userId;
+        const userId = req.user?.userId;
 
         const project = await Project.findById(id);
         if (!project) {
@@ -298,10 +316,10 @@ export const DeleteProject = async (req: Request, res: Response): Promise<void> 
             return;
         }
 
-        if (project.admin.toString() !== adminId) {
+        if (project.createdBy.toString() !== userId) {
             res.status(403).json({
                 success: false,
-                message: "Forbidden: Only project admin can delete the project",
+                message: "Forbidden: Only project creator can delete the project",
             });
             return;
         }

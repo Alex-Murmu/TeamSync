@@ -5,7 +5,8 @@ const UserSchema = new Schema({
     lastName:{type:String,trim:true,required:true},
     email:{type:String,trim:true,required:true},
     password:{type:String,required:true,select:false},
-    role:{type:String,enum:["Admin","Member"],default:"Member"},
+    role:{type:String,enum:["ADMIN","MEMBER"],default:"MEMBER"},
+    skills:[{type:String,trim:true}],
     isEmailVerified:{type:Boolean,default:false},
 },{
     timestamps:true,

@@ -4,6 +4,14 @@ import { UserRegisterInputs ,UserLoginInputs } from "../validators/user.validati
 import { User } from "../model/User.model.js";
 import { generateToken } from "../utils/jwt.utils.js";
 
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  path: "/",
+};
+
 
 export const RegisterUser = async(req:Request,res:Response):Promise<void>=>{
   try {
@@ -25,13 +33,16 @@ export const RegisterUser = async(req:Request,res:Response):Promise<void>=>{
         });
         return;
     }
-    
+      
+    const otp:number = Math.floor(100000 + Math.random() * 900000);
+    console.log("Generated OTP:", otp);
+
     const newUser = await User.create({
         firstName,
         lastName,
         email,
         password:hashedPassword,
-        role,
+        role: role ?? "MEMBER",
     });
 
     if(!newUser){
@@ -49,7 +60,7 @@ export const RegisterUser = async(req:Request,res:Response):Promise<void>=>{
         isEmailVerified:newUser.isEmailVerified,
     });
 
-
+    res.cookie("token", token, COOKIE_OPTIONS);
 
     res.status(201).json({
         success:true,
@@ -60,7 +71,6 @@ export const RegisterUser = async(req:Request,res:Response):Promise<void>=>{
             lastName:newUser.lastName,
             email:newUser.email,
             role:newUser.role,
-            token:token,
         },
     });
   } catch (error) {
@@ -101,6 +111,8 @@ export const LoginUser = async(req:Request,res:Response):Promise<void>=>{
             isEmailVerified:user.isEmailVerified,
         });
 
+        res.cookie("token", token, COOKIE_OPTIONS);
+
         res.status(200).json({
             success:true,
             message:"Login successful",
@@ -110,7 +122,6 @@ export const LoginUser = async(req:Request,res:Response):Promise<void>=>{
                 lastName:user.lastName,
                 email:user.email,
                 role:user.role,
-                token:token,
             },
         });
     } catch (error) {
@@ -227,4 +238,9 @@ export const GetAllUsers = async(req:Request,res:Response):Promise<void>=>{
             message:"Server error",
             error:errorMessage,
         });
-    }};  
+    }};
+
+export const LogoutUser = async(req:Request,res:Response):Promise<void>=>{
+    res.clearCookie("token", { path: "/", httpOnly: true, sameSite: "lax" });
+    res.status(200).json({ success: true, message: "Logged out successfully" });
+};  

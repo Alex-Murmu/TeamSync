@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import {
   SidebarGroup,
@@ -8,7 +7,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { CirclePlusIcon, MailIcon } from "lucide-react"
-import { TaskCreateDialog } from "@/components/TaskCreateDialog"
 
 export function NavMain({
   items,
@@ -24,21 +22,21 @@ export function NavMain({
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center gap-2">
-            <TaskCreateDialog>
-              <Button
-                size="sm"
-                className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
-              >
-                <CirclePlusIcon className="h-4 w-4" />
-                <span>Create Task</span>
-              </Button>
-            </TaskCreateDialog>
+            <SidebarMenuButton
+              tooltip="Quick Create"
+              className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
+            >
+              <CirclePlusIcon
+              />
+              <span>Organzation</span>
+            </SidebarMenuButton>
             <Button
               size="icon"
               className="size-8 group-data-[collapsible=icon]:opacity-0"
               variant="outline"
             >
-              <MailIcon />
+              <MailIcon
+              />
               <span className="sr-only">Inbox</span>
             </Button>
           </SidebarMenuItem>
@@ -46,11 +44,9 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title} asChild>
-                <Link to={item.url}>
-                  {item.icon}
-                  <span>{item.title}</span>
-                </Link>
+              <SidebarMenuButton tooltip={item.title}>
+                {item.icon}
+                <span>{item.title}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

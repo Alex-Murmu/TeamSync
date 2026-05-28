@@ -4,7 +4,6 @@ import { Conversation } from "../model/Conversation.model.js";
 import { CallSession } from "../model/CallSession.model.js";
 import { User } from "../model/User.model.js";
 import { SendMessage } from "../controllers/conversation.controller.js";
-import mongoose from "mongoose";
 import { networkInterfaces } from "os";
 interface AuthenticatedSocket extends Socket {
   userId?: string;
@@ -134,28 +133,18 @@ export const initSocket = (io: SocketIOServer) => {
           return;
         }
 
-interface MessageDocument extends mongoose.Document {
-  conversationId: string;
-  senderId: string;
-  content: string;
-  contentType?:string;
-  seenBy: { userId: string; seenAt: Date }[];
-  createdAt: Date;
-  updatedAt: Date;
-} ;
-
         // Create and save the message
-        const message = await Message.create<MessageDocument>({
+        const userId = socket.userId as string;
+        const message: any = await Message.create({
           conversationId,
-          senderId: socket.userId,
+          senderId: userId,
           content,
           contentType,
-          seenBy: [{ userId: socket.userId, seenAt: new Date() }],
-          _id: new mongoose.Types.ObjectId().toString(),
+          seenBy: [{ userId, seenAt: new Date() }],
         });
 
         // Populate sender info
-        const populatedMessage = await Message.findById(message._id).populate(
+        const populatedMessage = await Message.findById(message._id as string).populate(
           "senderId",
           "firstName lastName email"
         );

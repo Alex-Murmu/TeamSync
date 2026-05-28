@@ -177,7 +177,7 @@ export default function Features() {
           viewport={{ once: true }}
         >
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Powerful Features, Made Simple
+            <span className="bg-blue-500 underline-offset-1">Powerful</span> Features, Made Simple
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Everything you need to manage projects, collaborate with your team, and ship faster

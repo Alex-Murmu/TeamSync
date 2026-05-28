@@ -1,11 +1,12 @@
-import { JwtPayload } from "../utils/jwt.utils.ts";
+import { JwtPayload } from "../utils/jwt.utils.js";
 
 declare global{
     namespace Express{
         interface Request{
-            user:JwtPayload
+            user: JwtPayload;
+            cookies: { [key: string]: string };
         }
     }
 };
 
-export{};
+export {};

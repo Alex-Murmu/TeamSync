@@ -7,6 +7,7 @@ export interface JwtPayload {
     email:string,
     role:string,
     isEmailVerified:boolean,
+
 };
 
 
@@ -25,4 +26,4 @@ export const verifyToken = (token:string):JwtPayload | null =>{
         console.error("Token verification failed:", error);
         return null;
     }
-};
+};  

@@ -13,10 +13,14 @@ export const ValidateSchema = (schema:ZodSchema)=>{
          });
 
          if(!result.success){
-            console.log("Schema validation failed:", result.error.flatten().fieldErrors.body);
+            const fieldErrors = result.error.flatten().fieldErrors;
+            const errorMessages = Object.entries(fieldErrors)
+                .map(([field, messages]) => `${field}: ${(messages as string[]).join(", ")}`)
+                .join("; ");
+            console.log("Schema validation failed:", errorMessages);
             res.status(400).json({
                 success:false,
-                message:result.error.flatten().fieldErrors,
+                message: errorMessages || "Validation failed",
             });
             return;
          };

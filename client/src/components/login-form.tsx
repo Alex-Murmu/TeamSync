@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import SidePanelImage from "@/assets/side.jpg"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Field,
   FieldDescription,
@@ -11,30 +11,65 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useState, useEffect } from "react"
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { clearAuthError, loginUser } from "@/store/slices/authSlice";
+import { toast } from "sonner";
+import type { LoginPayload } from "@/api/endpoints/auth";
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+  const [formData, setFormData] = useState<LoginPayload>({ email: "", password: "" });
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const authError = useAppSelector((state) => state.auth.error);
+  const authStatus = useAppSelector((state) => state.auth.status);
+
+  useEffect(() => {
+    if (authError) {
+      toast.error(authError);
+      dispatch(clearAuthError());
+    }
+  }, [authError, dispatch]);
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    const result = await dispatch(loginUser(formData));
+    if (loginUser.fulfilled.match(result)) {
+      navigate("/dashboard");
+    }
+  }
+
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6 ", className)} {...props}>
       <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+        <CardContent className="grid  md:grid-cols-2 px-0">
+          <form className="p-6 " onSubmit={handleSubmit}>
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
-                <p className="text-balance text-muted-foreground">
-                  Login to your Acme Inc account
-                </p>
+
+              
+                  <h1 className="text-2xl font-bold">Welcome back</h1>
+
+                  <p className="text-muted-foreground">
+                    Login to your Acme Inc account
+                  </p>
+      
               </div>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="m@example.com"
                   required
+                  value={formData.email}
+                  onChange={handleInputChange}
                 />
               </Field>
               <Field>
@@ -47,10 +82,19 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={handleInputChange}
+                />
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit" disabled={authStatus === "loading"}>
+                  {authStatus === "loading" ? "Logging in..." : "Login"}
+                </Button>
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                 Or continue with
@@ -93,12 +137,12 @@ export function LoginForm({
             <img
               src={SidePanelImage}
               alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              className="absolute inset-0 h-full w-full object-cover "
             />
           </div>
         </CardContent>
       </Card>
-      <FieldDescription className="px-6 text-center">
+      <FieldDescription className=" text-center">
         By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>

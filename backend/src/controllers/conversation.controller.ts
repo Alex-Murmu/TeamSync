@@ -1,20 +1,17 @@
 import { Request, Response } from "express";
 import { Conversation } from "../model/Conversation.model.js";
 import { Message } from "../model/Message.model.js";
-import { Project } from "../model/Project.model.js";
+import { Workspace } from "../model/Workspace.model.js";
 import { User } from "../model/User.model.js";
+import { Types } from "mongoose";
 
-const isProjectMember = async (projectId: string, userId: string): Promise<boolean> => {
-  const project = await Project.findById(projectId).select("admin member");
-  if (!project) {
+const isWorkspaceMember = async (workspaceId: string, userId: string): Promise<boolean> => {
+  const workspace = await Workspace.findById(workspaceId).select("members");
+  if (!workspace) {
     return false;
   }
 
-  if (project.admin.toString() === userId) {
-    return true;
-  }
-
-  return project.member.some((memberId) => memberId.toString() === userId);
+  return workspace.members.some((member) => member.userId.toString() === userId);
 };
 
 const buildDirectParticipantsHash = (firstUserId: string, secondUserId: string): string => {
@@ -24,9 +21,10 @@ const buildDirectParticipantsHash = (firstUserId: string, secondUserId: string):
 export const CreateDirectConversation = async (req: Request, res: Response): Promise<void> => {
   try {
     const currentUserId = req.user.userId;
-    const { participantId, projectId } = req.body as {
+    const { participantId, workspaceId, projectId } = req.body as {
       participantId: string;
-      projectId: string;
+      workspaceId: string;
+      projectId?: string;
     };
 
     if (participantId === currentUserId) {
@@ -35,14 +33,14 @@ export const CreateDirectConversation = async (req: Request, res: Response): Pro
     }
 
     const [currentUserAllowed, participantAllowed] = await Promise.all([
-      isProjectMember(projectId, currentUserId),
-      isProjectMember(projectId, participantId),
+      isWorkspaceMember(workspaceId, currentUserId),
+      isWorkspaceMember(workspaceId, participantId),
     ]);
 
     if (!currentUserAllowed || !participantAllowed) {
       res.status(403).json({
         success: false,
-        message: "Both users must belong to the same project",
+        message: "Both users must belong to the same workspace",
       });
       return;
     }
@@ -57,7 +55,7 @@ export const CreateDirectConversation = async (req: Request, res: Response): Pro
 
     let conversation = await Conversation.findOne({
       type: "direct",
-      projectId,
+      workspaceId: new Types.ObjectId(workspaceId),
       participantsHash,
       isArchived: false,
     })
@@ -67,9 +65,10 @@ export const CreateDirectConversation = async (req: Request, res: Response): Pro
     if (!conversation) {
       conversation = await Conversation.create({
         type: "direct",
-        projectId,
-        createdBy: currentUserId,
-        members: [currentUserId, participantId],
+        workspaceId: new Types.ObjectId(workspaceId),
+        projectId: projectId ? new Types.ObjectId(projectId) : null,
+        createdBy: new Types.ObjectId(currentUserId),
+        members: [new Types.ObjectId(currentUserId), new Types.ObjectId(participantId)],
         participantsHash,
       });
 
@@ -92,35 +91,37 @@ export const CreateDirectConversation = async (req: Request, res: Response): Pro
 export const CreateGroupConversation = async (req: Request, res: Response): Promise<void> => {
   try {
     const currentUserId = req.user.userId;
-    const { title, projectId, memberIds } = req.body as {
+    const { title, workspaceId, projectId, memberIds } = req.body as {
       title: string;
-      projectId: string;
+      workspaceId: string;
+      projectId?: string;
       memberIds: string[];
     };
 
     const uniqueMembers = [...new Set([currentUserId, ...memberIds])];
 
-    const currentUserAllowed = await isProjectMember(projectId, currentUserId);
+    const currentUserAllowed = await isWorkspaceMember(workspaceId, currentUserId);
     if (!currentUserAllowed) {
-      res.status(403).json({ success: false, message: "You are not a member of this project" });
+      res.status(403).json({ success: false, message: "You are not a member of this workspace" });
       return;
     }
 
-    const membershipChecks = await Promise.all(uniqueMembers.map((memberId) => isProjectMember(projectId, memberId)));
+    const membershipChecks = await Promise.all(uniqueMembers.map((memberId) => isWorkspaceMember(workspaceId, memberId)));
     if (membershipChecks.some((allowed) => !allowed)) {
       res.status(403).json({
         success: false,
-        message: "All group members must belong to the same project",
+        message: "All group members must belong to the same workspace",
       });
       return;
     }
 
     const conversation = await Conversation.create({
       type: "group",
-      projectId,
+      workspaceId: new Types.ObjectId(workspaceId),
+      projectId: projectId ? new Types.ObjectId(projectId) : null,
       title,
-      createdBy: currentUserId,
-      members: uniqueMembers,
+      createdBy: new Types.ObjectId(currentUserId),
+      members: uniqueMembers.map((id) => new Types.ObjectId(id)),
     });
 
     const populatedConversation = await Conversation.findById(conversation._id)
