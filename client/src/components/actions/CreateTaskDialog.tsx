@@ -26,7 +26,7 @@ export default function CreateTaskDialog({ label }: { label: string }) {
   }, [taskError, dispatch, open]);
 
   useEffect(() => {
-    dispatch(fetchProjects());
+    dispatch(fetchProjects(undefined));
   }, [dispatch]);
 
   const submit = async () => {

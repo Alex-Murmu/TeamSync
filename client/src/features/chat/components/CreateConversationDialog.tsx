@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "@shared/hooks/redux";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearError } from "../slices/chatSlice";
 import { createDirectConversation } from "../api/chatApi";
-import { Button, Input, Modal } from "@shared/ui";
+import { Button, Input, Modal } from "@/shared/ui";
 import { toast } from "sonner";
 
 interface CreateConversationDialogProps {
@@ -16,23 +16,23 @@ export function CreateConversationDialog({
 }: CreateConversationDialogProps) {
   const dispatch = useAppDispatch();
   const { isLoading, error } = useAppSelector((state) => state.chat);
-  const [participantEmail, setParticipantEmail] = useState("");
+  const [participantId, setParticipantId] = useState("");
 
   const handleSubmit = async () => {
-    if (!participantEmail.trim()) return;
+    if (!participantId.trim()) return;
     const result = await dispatch(
-      createDirectConversation({ participantEmail })
+      createDirectConversation({ participantId, workspaceId: "" })
     );
     if (createDirectConversation.fulfilled.match(result)) {
       toast.success("Conversation started");
-      setParticipantEmail("");
+      setParticipantId("");
       onClose();
     }
   };
 
   const handleClose = () => {
     dispatch(clearError());
-    setParticipantEmail("");
+    setParticipantId("");
     onClose();
   };
 
@@ -43,7 +43,7 @@ export function CreateConversationDialog({
       title="Start Conversation"
       actions={
         <>
-          <Button variant="ghost" onClick={handleClose}>
+          <Button variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
           <Button variant="primary" onClick={handleSubmit} isLoading={isLoading}>
@@ -59,11 +59,11 @@ export function CreateConversationDialog({
           </div>
         )}
         <Input
-          label="Participant Email"
-          type="email"
-          value={participantEmail}
-          onChange={(e) => setParticipantEmail(e.target.value)}
-          placeholder="user@example.com"
+          label="Participant ID"
+          type="text"
+          value={participantId}
+          onChange={(e) => setParticipantId(e.target.value)}
+          placeholder="user-id"
           autoFocus
         />
       </div>

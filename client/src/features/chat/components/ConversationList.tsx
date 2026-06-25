@@ -1,7 +1,7 @@
-import { useAppSelector, useAppDispatch } from "@shared/hooks/redux";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { getConversations } from "../api/chatApi";
 import { setCurrentConversation } from "../slices/chatSlice";
-import { Card } from "@shared/ui";
+import { Badge } from "@/components/ui/badge";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
@@ -31,9 +31,8 @@ export function ConversationList() {
           </div>
         ) : (
           conversations.map((conv) => (
-            <Card
+            <div
               key={conv._id}
-              elevation="sm"
               onClick={() => dispatch(setCurrentConversation(conv))}
               className={`mx-2 my-1 p-3 cursor-pointer transition-all ${
                 currentConversation?._id === conv._id
@@ -42,12 +41,12 @@ export function ConversationList() {
               }`}
             >
               <p className="font-medium text-gray-900 text-sm">
-                {conv.name || conv.participants.map((p: any) => p.name).join(", ")}
+                {conv.title || "Direct message"}
               </p>
               <p className="text-gray-500 text-xs truncate">
-                {conv.lastMessage || "No messages yet"}
+                {conv.lastMessageAt ? new Date(conv.lastMessageAt).toLocaleString() : "No messages yet"}
               </p>
-            </Card>
+            </div>
           ))
         )}
       </div>

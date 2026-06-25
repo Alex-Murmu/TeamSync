@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "@shared/hooks/redux";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearError } from "../slices/chatSlice";
 import { sendMessage } from "../api/chatApi";
-import { Button, Input } from "@shared/ui";
+import { Button, Input } from "@/shared/ui";
 
 interface SendMessageFormProps {
   conversationId: string;
@@ -17,7 +17,7 @@ export function SendMessageForm({ conversationId }: SendMessageFormProps) {
     e.preventDefault();
     if (!message.trim()) return;
 
-    dispatch(sendMessage({ conversationId, data: { content: message } })).then(() => {
+    dispatch(sendMessage({ conversationId, data: { content: message, contentType: "text" } })).then(() => {
       setMessage("");
     });
   };

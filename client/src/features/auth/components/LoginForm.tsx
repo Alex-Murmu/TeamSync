@@ -6,7 +6,7 @@ import { Button, Input, Card } from "@shared/ui";
 
 export function LoginForm() {
   const dispatch = useAppDispatch();
-  const { isLoading, error } = useAppSelector((state) => state.auth);
+  const { status, error } = useAppSelector((state) => state.auth);
   const [formData, setFormData] = useState({ email: "", password: "" });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,9 +18,7 @@ export function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (dispatch) {
-      dispatch(loginUser(formData));
-    }
+    dispatch(loginUser(formData));
   };
 
   return (
@@ -62,7 +60,7 @@ export function LoginForm() {
           type="submit"
           variant="primary"
           size="md"
-          isLoading={isLoading}
+          isLoading={status === "loading"}
           className="w-full"
         >
           Sign In

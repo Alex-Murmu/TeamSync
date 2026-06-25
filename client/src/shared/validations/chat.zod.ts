@@ -8,8 +8,8 @@ export const CreateDirectConversationSchema = z.object({
 
 export const CreateGroupConversationSchema = z.object({
   title: z.string().min(3, "Group name must be at least 3 characters"),
+  projectId: z.string(),
   workspaceId: z.string(),
-  projectId: z.string().optional(),
   memberIds: z.array(z.string()).min(2, "At least 2 members required"),
 });
 

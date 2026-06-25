@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "@shared/hooks/redux";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { registerUser } from "../api/authApi";
 import { clearError } from "../slices/authSlice";
-import { Button, Input, Card } from "@shared/ui";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 
 export function RegisterForm() {
   const dispatch = useAppDispatch();
-  const { isLoading, error } = useAppSelector((state) => state.auth);
+  const { status, error } = useAppSelector((state) => state.auth);
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -38,7 +41,8 @@ export function RegisterForm() {
 
     dispatch(
       registerUser({
-        name: formData.name,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
       })
@@ -65,47 +69,70 @@ export function RegisterForm() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Full Name"
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="John Doe"
-          required
-        />
-        <Input
-          label="Email"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="you@example.com"
-          required
-        />
-        <Input
-          label="Password"
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          placeholder="••••••••"
-          required
-        />
-        <Input
-          label="Confirm Password"
-          type="password"
-          name="confirmPassword"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          placeholder="••••••••"
-          required
-        />
+        <div>
+          <label className="text-sm font-medium text-gray-700">First Name</label>
+          <Input
+            type="text"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            placeholder="John"
+            required
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-gray-700">Last Name</label>
+          <Input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            placeholder="Doe"
+            required
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-gray-700">Email</label>
+          <Input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="you@example.com"
+            required
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-gray-700">Password</label>
+          <Input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="••••••••"
+            required
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-gray-700">Confirm Password</label>
+          <Input
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            placeholder="••••••••"
+            required
+            className="mt-1"
+          />
+        </div>
         <Button
           type="submit"
-          variant="primary"
-          size="md"
-          isLoading={isLoading}
+          variant="default"
+          size="default"
           className="w-full"
         >
           Create Account

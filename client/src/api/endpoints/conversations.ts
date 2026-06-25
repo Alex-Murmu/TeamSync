@@ -6,5 +6,6 @@ export const createDirectConversation = (payload: { participantId: string; proje
 export const createGroupConversation = (payload: {
   title: string;
   projectId: string;
+  workspaceId: string;
   memberIds: string[];
 }) => api.post("/conversations/group", payload);

@@ -18,6 +18,8 @@ export const generateToken = (payload:JwtPayload):string=>{
     return jwt.sign(payload,JWT_SECRET,{expiresIn:"1h"});
 }   
 
+
+
 export const verifyToken = (token:string):JwtPayload | null =>{
     try {
         const decoded = jwt.verify(token,JWT_SECRET) as JwtPayload; 

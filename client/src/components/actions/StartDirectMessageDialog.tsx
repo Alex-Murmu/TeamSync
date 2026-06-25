@@ -18,7 +18,7 @@ export default function StartDirectMessageDialog({ label }: { label: string }) {
 
   useEffect(() => {
     if (open) {
-      dispatch(fetchProjects());
+      dispatch(fetchProjects(undefined));
       dispatch(fetchMembers());
     }
   }, [dispatch, open]);

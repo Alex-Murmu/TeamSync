@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const membersError = useAppSelector((state) => state.members.error);
 
   useEffect(() => {
-    dispatch(fetchProjects());
+    dispatch(fetchProjects(undefined));
     dispatch(fetchTasks());
     dispatch(fetchMembers());
   }, [dispatch]);

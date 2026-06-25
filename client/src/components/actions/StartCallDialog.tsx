@@ -12,23 +12,24 @@ export default function StartCallDialog({ label }: { label: string }) {
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
   const [projectId, setProjectId] = useState("");
+  const [workspaceId, setWorkspaceId] = useState("");
   const [title, setTitle] = useState("");
   const [type, setType] = useState<"voice" | "video">("voice");
   const [loading, setLoading] = useState(false);
   const projects = useAppSelector((state) => state.projects.items);
 
   useEffect(() => {
-    if (open) dispatch(fetchProjects());
+    if (open) dispatch(fetchProjects(undefined));
   }, [dispatch, open]);
 
   const submit = async () => {
-    if (!projectId || !title) {
+    if (!projectId || !workspaceId || !title) {
       toast.error("Please enter a title and select a project");
       return;
     }
     setLoading(true);
     try {
-      const { data } = await createGroupConversation({ title, projectId, memberIds: [] });
+      const { data } = await createGroupConversation({ title, projectId, workspaceId, memberIds: [] });
       const conversationId = data?.data?._id as string | undefined;
       if (!conversationId) {
         toast.error("Failed to create conversation");
@@ -69,9 +70,10 @@ export default function StartCallDialog({ label }: { label: string }) {
           </select>
           <select
             className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-            value={type}
-            onChange={(e) => setType(e.target.value as "voice" | "video")}
+            value={workspaceId}
+            onChange={(e) => setWorkspaceId(e.target.value)}
           >
+            <option value="">Select workspace</option>
             <option value="voice">Voice</option>
             <option value="video">Video</option>
           </select>

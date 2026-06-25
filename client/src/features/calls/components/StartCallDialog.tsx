@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "@shared/hooks/redux";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { createCallSession } from "../api/callApi";
 import { clearError } from "../slices/callSlice";
-import { Button, Input, Modal } from "@shared/ui";
+import { Button, Modal } from "@/shared/ui";
 
 interface StartCallDialogProps {
   isOpen: boolean;
@@ -23,7 +23,7 @@ export function StartCallDialog({
     dispatch(
       createCallSession({
         conversationId: conversationId || "",
-        participantIds,
+        type: "voice",
       })
     ).then(() => {
       setParticipantIds([]);

@@ -1,6 +1,6 @@
-import { useAppSelector, useAppDispatch } from "@shared/hooks/redux";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { getMessages } from "../api/chatApi";
-import { Skeleton } from "@shared/ui";
+import { Skeleton } from "@/shared/ui";
 import { useEffect } from "react";
 
 interface MessageListProps {
@@ -39,7 +39,7 @@ export function MessageList({ conversationId }: MessageListProps) {
             key={msg._id}
             className="flex flex-col gap-1 max-w-xs bg-gray-100 rounded-lg p-3 shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
           >
-            <p className="text-xs font-medium text-gray-700">{msg.sender?.name}</p>
+            <p className="text-xs font-medium text-gray-700">{msg.senderId}</p>
             <p className="text-gray-900 text-sm">{msg.content}</p>
             <p className="text-xs text-gray-500">
               {new Date(msg.createdAt).toLocaleTimeString([], {

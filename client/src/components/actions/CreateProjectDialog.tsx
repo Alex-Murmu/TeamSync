@@ -28,7 +28,7 @@ export default function CreateProjectDialog({ label }: { label: string }) {
       createProjectItem({ title, description: description || undefined, dueDate })
     );
     if (createProjectItem.fulfilled.match(result)) {
-      await dispatch(fetchProjects());
+      await dispatch(fetchProjects(undefined));
       setOpen(false);
       setTitle("");
       setDescription("");

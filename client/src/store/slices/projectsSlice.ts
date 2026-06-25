@@ -51,7 +51,7 @@ function extractErrorMessage(err: unknown, fallback: string): string {
   return fallback;
 }
 
-export const fetchProjects = createAsyncThunk("projects/list", async (workspaceId?: string, { rejectWithValue }) => {
+export const fetchProjects = createAsyncThunk("projects/list", async (workspaceId: string, { rejectWithValue }) => {
   try {
     const url = workspaceId ? `/projects?workspaceId=${workspaceId}` : "/projects";
     const { data } = await api.get(url);

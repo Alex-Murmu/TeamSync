@@ -35,11 +35,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <ProtectedRoute><DashboardPage /></ProtectedRoute>,
+    element: <DashboardPage />,
   },
   {
     path: "/workspaces",
-    element: <ProtectedRoute><WorkspacesPage /></ProtectedRoute>,
+    element: <WorkspacesPage />,
   },
   {
     path: "/workspaces/:workspaceId/projects",
@@ -47,7 +47,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/projects",
-    element: <ProtectedRoute><ProjectsPage /></ProtectedRoute>,
+    element: <ProjectsPage />,
   },
   {
     path: "/projects/:projectId/tasks",

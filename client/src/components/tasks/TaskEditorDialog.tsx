@@ -54,7 +54,7 @@ export function TaskEditorDialog({
   const projects = useAppSelector((state) => state.projects.items);
   const members = useAppSelector((state) => state.members.items);
 
-  const resolver = mode === "create" ? zodResolver(CreateTaskSchema) : zodResolver(UpdateTaskSchema);
+  const resolver = zodResolver(CreateTaskSchema);
 
   const defaultValues = useMemo<TaskFormValues>(() => {
     if (mode === "edit" && task) {
@@ -86,7 +86,7 @@ export function TaskEditorDialog({
 
   useEffect(() => {
     if (!open) return;
-    dispatch(fetchProjects());
+    dispatch(fetchProjects(undefined));
     dispatch(fetchMembers());
     form.reset(defaultValues);
   }, [dispatch, form, open, defaultValues]);
@@ -124,7 +124,6 @@ export function TaskEditorDialog({
         status: values.status,
         priority: values.priority,
         dueDate: values.dueDate,
-        assignedTo: values.assignedTo || undefined,
       })
     );
 

@@ -32,8 +32,8 @@ export function ChatPage() {
           <div className="flex-1 flex flex-col bg-white">
             <div className="border-b border-gray-200 p-4">
               <h3 className="font-semibold text-gray-900">
-                {currentConversation.name ||
-                  currentConversation.participants?.map((p: any) => p.name).join(", ")}
+                {currentConversation.title ||
+                  currentConversation.members?.map((m: any) => m).join(", ")}
               </h3>
             </div>
             <MessageList conversationId={currentConversation._id} />
